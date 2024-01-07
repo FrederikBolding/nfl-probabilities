@@ -2,6 +2,8 @@ import { SCHEDULE } from "./data";
 import { getSeeding } from "./playoff";
 import { calculatePlayoffProbability } from "./probability";
 
+console.log(getSeeding(SCHEDULE));
+
 const playoffProbabilities = calculatePlayoffProbability(SCHEDULE);
 
 Object.entries(SCHEDULE).forEach(([team, weeks]) => {
@@ -15,5 +17,3 @@ Object.entries(SCHEDULE).forEach(([team, weeks]) => {
     `${playoffProbabilities[team]}%`
   );
 });
-
-console.log(getSeeding(SCHEDULE));

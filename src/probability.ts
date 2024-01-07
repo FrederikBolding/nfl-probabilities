@@ -1,6 +1,6 @@
 import { TEAMS } from "./data";
 import { getSeeding } from "./playoff";
-import { Schedule, mergeSchedules } from "./schedule";
+import { Schedule, TeamScheduleWeek, mergeSchedules } from "./schedule";
 
 interface UndecidedMatchup {
   week: number;
@@ -37,7 +37,10 @@ export function calculatePlayoffProbability(
       const teamName = teamSchedule[0];
       const games = teamSchedule[1];
       // Only include undecided games
-      acc[teamName] = games.filter((game) => game?.won === null);
+      acc[teamName] = games
+        .filter((game) => game?.won === null)
+        // Copy object to not change input values
+        .map((game) => ({ ...game }) as TeamScheduleWeek);
       return acc;
     },
     {}
