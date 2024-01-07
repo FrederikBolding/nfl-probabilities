@@ -383,7 +383,7 @@ const PLAYED_GAMES = {
     false,
     true,
   ],
-  LV: [
+  LAC: [
     false,
     false,
     true,
@@ -421,7 +421,7 @@ const PLAYED_GAMES = {
     true,
     true,
   ],
-  LAC: [
+  LV: [
     true,
     false,
     false,

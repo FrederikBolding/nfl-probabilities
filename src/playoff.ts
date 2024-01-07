@@ -10,11 +10,6 @@ import { TeamRecord, TeamRecordData, getMultipleRecords } from "./records";
 import { Schedule } from "./schedule";
 import { setDiff } from "./utils";
 
-export function calculatePlayoffProbability(team: string) {
-  // TODO: Do the thing
-  return 0;
-}
-
 function compareWL(a: TeamRecordData, b: TeamRecordData) {
   return b.wl - a.wl;
 }
@@ -42,6 +37,8 @@ function sortRecords(records: TeamRecord[]) {
     }
 
     // TODO: Deal with tie breakers
+    // TODO: Consider different tie breaking rules between division opponents and non-division opponents
+    // TODO: Consider three+-way ties
     return 0;
 
     throw new Error(

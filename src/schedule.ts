@@ -2,6 +2,7 @@ export interface TeamScheduleWeek {
   opponent: string;
   away: boolean;
   won: boolean | null;
+  week: number;
 }
 
 export type Schedule = Record<string, (TeamScheduleWeek | null)[]>;
@@ -25,9 +26,19 @@ export function parseSchedule(
         const opponentShorthand = opponent.slice(away ? 1 : 0);
         const won = teamPlayedGames[index] ?? null;
 
-        return { opponent: opponentShorthand, away, won };
+        return { opponent: opponentShorthand, away, won, week: index + 1 };
       });
       return [teamShorthand, games];
     })
   );
+}
+
+export function mergeSchedules(scheduleA: Schedule, scheduleB: Schedule) {
+  return Object.entries(scheduleA).reduce<Schedule>((acc, schedule) => {
+    const teamName = schedule[0];
+    const gamesA = schedule[1];
+    const gamesB = scheduleB[teamName]!;
+    acc[teamName] = gamesA.concat(gamesB);
+    return acc;
+  }, {});
 }

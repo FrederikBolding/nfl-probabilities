@@ -1,6 +1,8 @@
 import { SCHEDULE } from "./data";
-import { calculatePlayoffProbability, getSeeding } from "./playoff";
-import { Schedule } from "./schedule";
+import { getSeeding } from "./playoff";
+import { calculatePlayoffProbability } from "./probability";
+
+const playoffProbabilities = calculatePlayoffProbability(SCHEDULE);
 
 Object.entries(SCHEDULE).forEach(([team, weeks]) => {
   const opponents = weeks.map((week) => week?.opponent ?? "BYE").join(" ");
@@ -10,7 +12,7 @@ Object.entries(SCHEDULE).forEach(([team, weeks]) => {
   console.log(
     team,
     `${wins}-${losses}-${draws}`,
-    `${calculatePlayoffProbability(team)}%`
+    `${playoffProbabilities[team]}%`
   );
 });
 
