@@ -8,7 +8,7 @@ import {
 } from "./data";
 import { TeamRecord, TeamRecordData, getMultipleRecords } from "./records";
 import { Schedule } from "./schedule";
-import { setDiff } from "./utils";
+import { findMinIndex, separate, setDiff } from "./utils";
 
 function compareWL(a: TeamRecordData, b: TeamRecordData) {
   return b.wl - a.wl;
@@ -108,13 +108,92 @@ function sortRecordsInConference(a: TeamRecord, b: TeamRecord) {
   );
 }
 
-function sortRecords(records: TeamRecord[]) {
-  return records.sort((a, b) => {
-    if (a.division === b.division) {
-      return sortRecordsInDivision(a, b);
+function groupRecordsByWL(records: TeamRecord[]) {
+  return records.reduce<TeamRecord[][]>(
+    (acc, record) => {
+      const currentGroup = acc[acc.length - 1]!;
+      const recordToCompare = currentGroup[0];
+
+      if (!recordToCompare || recordToCompare.record.wl === record.record.wl) {
+        currentGroup.push(record);
+      } else {
+        acc.push([record]);
+      }
+      return acc;
+    },
+    [[]]
+  );
+}
+
+function breakDivisionTie(records: TeamRecord[]): TeamRecord[] {
+  if (records.length > 2) {
+    // TODO: Reimplement from sortRecordsInDivision
+
+    const worstConferenceWL = findMinIndex(
+      records.map((record) => record.conferenceRecord.wl)
+    );
+
+    if (worstConferenceWL !== -1) {
+      const [separated, worst] = separate(records, worstConferenceWL);
+      return [
+        ...breakTies(separated as TeamRecord[], true),
+        worst as TeamRecord,
+      ];
     }
-    return sortRecordsInConference(a, b);
-  });
+
+    throw new Error(
+      `Failed to break tie between ${records
+        .map((record) => record.shorthand)
+        .join(",")}`
+    );
+  }
+
+  return records.sort(sortRecordsInDivision);
+}
+
+function breakConferenceTie(records: TeamRecord[]): TeamRecord[] {
+  if (records.length > 2) {
+    // TODO: Reimplement from sortRecordsInConference
+
+    const worstConferenceWL = findMinIndex(
+      records.map((record) => record.conferenceRecord.wl)
+    );
+
+    if (worstConferenceWL !== -1) {
+      const [separated, worst] = separate(records, worstConferenceWL);
+      return [
+        ...breakTies(separated as TeamRecord[], true),
+        worst as TeamRecord,
+      ];
+    }
+
+    throw new Error(
+      `Failed to break tie between ${records
+        .map((record) => record.shorthand)
+        .join(",")}`
+    );
+  }
+
+  return records.sort(sortRecordsInConference);
+}
+
+function breakTies(records: TeamRecord[], isDivisionTie: boolean) {
+  if (records.length === 1) {
+    return records;
+  }
+  return isDivisionTie
+    ? breakDivisionTie(records)
+    : breakConferenceTie(records);
+}
+
+function sortRecords(records: TeamRecord[], isDivision: boolean) {
+  const initialSort = records.sort((a, b) => compareWL(a.record, b.record));
+  const grouped = groupRecordsByWL(initialSort);
+  const tiesBroken = grouped
+    .map((group) => breakTies(group, isDivision))
+    .flat();
+
+  return tiesBroken;
 }
 
 function getDivisionWinners(records: TeamRecord[], conference?: Conference) {
@@ -127,7 +206,7 @@ function getDivisionWinners(records: TeamRecord[], conference?: Conference) {
     const filteredRecords = records.filter(
       (record) => record.division === division
     );
-    const sortedRecords = sortRecords(filteredRecords);
+    const sortedRecords = sortRecords(filteredRecords, true);
     return sortedRecords[0]!;
   });
 }
@@ -143,7 +222,10 @@ function getConferenceSeeding(schedule: Schedule, conference: Conference) {
 
   const records = getMultipleRecords(schedule, conferenceTeams);
 
-  const divisionWinners = sortRecords(getDivisionWinners(records, conference));
+  const divisionWinners = sortRecords(
+    getDivisionWinners(records, conference),
+    false
+  );
 
   const remainingTeams = setDiff(
     conferenceTeams,
@@ -154,7 +236,7 @@ function getConferenceSeeding(schedule: Schedule, conference: Conference) {
     remainingTeams.includes(record.shorthand)
   );
 
-  const remainingTeamsSorted = sortRecords(remainingTeamRecords);
+  const remainingTeamsSorted = sortRecords(remainingTeamRecords, false);
 
   const wildCards = remainingTeamsSorted.slice(0, 3);
 
