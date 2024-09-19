@@ -19,8 +19,8 @@ export interface TeamRecord {
   shorthand: string;
   division: Division;
   record: TeamRecordData;
-  h2h: Record<string, TeamRecordData>;
-  commonRecord: Record<string, TeamRecordData>;
+  getH2H: (team: string) => TeamRecordData;
+  getCommonRecord: (team: string) => TeamRecordData | undefined;
   divisionRecord: TeamRecordData;
   conferenceRecord: TeamRecordData;
 }
@@ -83,29 +83,34 @@ function getConferenceRecord(
   );
 }
 
-function getCommonRecord(schedule: Schedule, teamShorthand: string) {
+function getCommonRecord(
+  schedule: Schedule,
+  teamShorthand: string,
+  opponentShorthand: string
+) {
   const ownTeam = TEAM_MAP[teamShorthand]!;
   const ownSchedule = filterByeWeeks(schedule[teamShorthand]!);
   const opponents = ownSchedule.map((match) => match.opponent);
-  return TEAMS.reduce<Record<string, TeamRecordData>>((acc, team) => {
-    // Don't calculate this for ourselves or teams outside our conference
-    if (
-      team.conference === ownTeam.conference &&
-      teamShorthand !== team.shorthand
-    ) {
-      const opponentSchedule = filterByeWeeks(schedule[team.shorthand]!);
 
-      // Common games are games where tie breaking teams have a common opponent
-      const commonTeams = opponentSchedule!
-        .filter((match) => opponents.includes(match.opponent))
-        .map((match) => match.opponent);
+  const team = TEAM_MAP[opponentShorthand]!;
 
-      if (commonTeams.length >= 4) {
-        acc[team.shorthand] = getRecordAgainst(ownSchedule, commonTeams);
-      }
+  if (
+    team.conference === ownTeam.conference &&
+    teamShorthand !== team.shorthand
+  ) {
+    const opponentSchedule = filterByeWeeks(schedule[team.shorthand]!);
+
+    // Common games are games where tie breaking teams have a common opponent
+    const commonTeams = opponentSchedule!
+      .filter((match) => opponents.includes(match.opponent))
+      .map((match) => match.opponent);
+
+    if (commonTeams.length >= 4) {
+      return getRecordAgainst(ownSchedule, commonTeams);
     }
-    return acc;
-  }, {});
+  }
+
+  return undefined;
 }
 
 export function getMultipleRecords(
@@ -115,15 +120,49 @@ export function getMultipleRecords(
   return teams.map((team) => {
     // Filter out bye weeks
     const weeks = filterByeWeeks(schedule[team.shorthand]!);
-    // TODO: Lazily compute all this
+    const h2h = {} as Record<string, TeamRecordData>;
+    const commonRecord = {} as Record<string, TeamRecordData | undefined>;
     return {
       shorthand: team.shorthand,
       division: team.division,
-      record: getRecord(weeks),
-      h2h: getH2HRecords(weeks, team.shorthand),
-      commonRecord: getCommonRecord(schedule, team.shorthand),
-      divisionRecord: getDivisionRecord(weeks, team.division),
-      conferenceRecord: getConferenceRecord(weeks, team.conference),
+      // These getters below are ugly, but more performant (lazy and memoized).
+      get record(): TeamRecordData {
+        // @ts-ignore TypeScript doesn't like this with good reason.
+        delete this.record;
+        // @ts-ignore TypeScript doesn't like this with good reason.
+        this.record = getRecord(weeks);
+        return this.record;
+      },
+      getH2H(input) {
+        if (!(input in h2h)) {
+          h2h[input] = getRecordAgainst(weeks, [input]);
+        }
+        return h2h[input]!;
+      },
+      getCommonRecord(input) {
+        if (!(input in commonRecord)) {
+          commonRecord[input] = getCommonRecord(
+            schedule,
+            team.shorthand,
+            input
+          );
+        }
+        return commonRecord[input]!;
+      },
+      get divisionRecord(): TeamRecordData {
+        // @ts-ignore TypeScript doesn't like this with good reason.
+        delete this.divisionRecord;
+        // @ts-ignore TypeScript doesn't like this with good reason.
+        this.divisionRecord = getDivisionRecord(weeks, team.division);
+        return this.divisionRecord;
+      },
+      get conferenceRecord(): TeamRecordData {
+        // @ts-ignore TypeScript doesn't like this with good reason.
+        delete this.conferenceRecord;
+        // @ts-ignore TypeScript doesn't like this with good reason.
+        this.conferenceRecord = getConferenceRecord(weeks, team.conference);
+        return this.conferenceRecord;
+      },
     };
   });
 }

@@ -22,8 +22,8 @@ function sortRecordsInDivision(a: TeamRecord, b: TeamRecord) {
   }
 
   // Next, look at H2H.
-  const aH2H = a.h2h[b.shorthand]!;
-  const bH2H = b.h2h[a.shorthand]!;
+  const aH2H = a.getH2H(b.shorthand);
+  const bH2H = b.getH2H(a.shorthand);
   const h2hDiff = compareWL(aH2H, bH2H);
   if (h2hDiff !== 0) {
     return h2hDiff;
@@ -36,8 +36,8 @@ function sortRecordsInDivision(a: TeamRecord, b: TeamRecord) {
   }
 
   // Next, look at common games
-  const aCommonRecord = a.commonRecord[b.shorthand];
-  const bCommonRecord = b.commonRecord[a.shorthand];
+  const aCommonRecord = a.getCommonRecord(b.shorthand);
+  const bCommonRecord = b.getCommonRecord(a.shorthand);
   if (aCommonRecord && bCommonRecord) {
     const commonGameDiff = compareWL(aCommonRecord, bCommonRecord);
     if (commonGameDiff !== 0) {
@@ -72,8 +72,8 @@ function sortRecordsInConference(a: TeamRecord, b: TeamRecord) {
   }
 
   // Next, look at H2H.
-  const aH2H = a.h2h[b.shorthand]!;
-  const bH2H = b.h2h[a.shorthand]!;
+  const aH2H = a.getH2H(b.shorthand);
+  const bH2H = b.getH2H(a.shorthand);
   const h2hDiff = compareWL(aH2H, bH2H);
   if (h2hDiff !== 0) {
     return h2hDiff;
@@ -86,8 +86,8 @@ function sortRecordsInConference(a: TeamRecord, b: TeamRecord) {
   }
 
   // Next, look at common games
-  const aCommonRecord = a.commonRecord[b.shorthand];
-  const bCommonRecord = b.commonRecord[a.shorthand];
+  const aCommonRecord = a.getCommonRecord(b.shorthand);
+  const bCommonRecord = b.getCommonRecord(a.shorthand);
   if (aCommonRecord && bCommonRecord) {
     const commonGameDiff = compareWL(aCommonRecord, bCommonRecord);
     if (commonGameDiff !== 0) {
