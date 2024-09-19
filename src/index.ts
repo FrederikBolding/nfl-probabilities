@@ -1,4 +1,4 @@
-import { SCHEDULE } from "./data";
+import { SCHEDULE_2024 as SCHEDULE } from "./data";
 import { getSeeding } from "./playoff";
 import { calculatePlayoffProbability } from "./probability";
 
