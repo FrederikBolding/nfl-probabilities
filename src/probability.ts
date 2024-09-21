@@ -1,6 +1,7 @@
 import { TEAMS } from "./data";
 import { getSeeding } from "./playoff";
 import { Schedule, TeamScheduleWeek, mergeSchedules } from "./schedule";
+import { permutationsWithReplacement as permutationsFn } from "combinatorial-generators";
 
 interface UndecidedMatchup {
   week: number;
@@ -40,7 +41,7 @@ export function calculatePlayoffProbability(
       acc[teamName] = games
         .filter((game) => game?.won === null)
         // Copy object to not change input values
-        .map((game) => ({ ...game }) as TeamScheduleWeek);
+        .map((game) => ({ ...game } as TeamScheduleWeek));
       return acc;
     },
     {}
@@ -62,82 +63,61 @@ export function calculatePlayoffProbability(
     return acc.concat(matchups);
   }, []);
 
-  console.log("Computing possible outcomes...");
-
-  // Or combinations?
-  const permutations = coinFlip(unplayedMatchups.length);
-
-  const possibleOutcomes = permutations.reduce<DecidedMatchup[][]>(
-    (acc, permutation) => {
-      const matchups = permutation
-        .split("")
-        .reduce<DecidedMatchup[]>((permutationAcc, flip, index) => {
-          const matchup = unplayedMatchups[index]!;
-          permutationAcc.push({
-            week: matchup.week,
-            teamA: matchup.teamA,
-            teamB: matchup.teamB,
-            winner: flip === "H" ? matchup.teamA : matchup.teamB,
-          });
-          return permutationAcc;
-        }, []);
-      acc.push(matchups);
-      return acc;
-    },
-    []
+  console.log(
+    `Computing possible outcomes (${unplayedMatchups.length} remaining games)...`
   );
 
-  const totalOutcomes = possibleOutcomes.length;
+  const permutations = permutationsFn([true, false], unplayedMatchups.length);
+
+  const totalOutcomes = 2 ** unplayedMatchups.length;
 
   console.log(`Computing seedings for all ${totalOutcomes} outcomes... (slow)`);
 
-  const possibleSeedings = possibleOutcomes.map((matchups) => {
-    // This seems stupid and slow, fix
-    const possibleSchedule = Object.entries(undecidedSchedule).reduce<Schedule>(
-      (acc, teamSchedule) => {
-        const teamName = teamSchedule[0];
-        const games = teamSchedule[1];
-        const teamMatchups = matchups.filter(
-          (matchup) => matchup.teamA === teamName || matchup.teamB === teamName
-        );
+  const seedingOccurrences: Record<string, number> = {};
 
-        for (const matchup of teamMatchups) {
-          const index = games.findIndex((game) => game!.week === matchup.week);
-          games[index]!.won = matchup.winner === teamName;
+  for (const permutation of permutations) {
+    const possibleSchedule = unplayedMatchups.reduce<Schedule>(
+      (acc, matchup, index) => {
+        if (!(matchup.teamA in acc)) {
+          acc[matchup.teamA] = [];
+        }
+        if (!(matchup.teamB in acc)) {
+          acc[matchup.teamB] = [];
         }
 
-        acc[teamName] = games;
+        acc[matchup.teamA]!.push({
+          opponent: matchup.teamB,
+          away: false,
+          week: matchup.week,
+          won: permutation[index]!,
+        });
+        acc[matchup.teamB]!.push({
+          opponent: matchup.teamA,
+          away: true,
+          week: matchup.week,
+          won: !permutation[index]!,
+        });
         return acc;
       },
       {}
     );
+
     const mergedSchedule = mergeSchedules(decidedSchedule, possibleSchedule);
     const { nfc, afc } = getSeeding(mergedSchedule);
-    return nfc.concat(afc);
-  });
+    const combinedSeeding = nfc.concat(afc);
 
-  const seedingOccurrences = possibleSeedings.reduce<Record<string, number>>(
-    (acc, seeding) => {
-      for (const team of seeding) {
-        if (!acc[team]) {
-          acc[team] = 1;
-        } else {
-          acc[team]++;
-        }
+    for (const team of combinedSeeding) {
+      if (!seedingOccurrences[team]) {
+        seedingOccurrences[team] = 1;
+      } else {
+        seedingOccurrences[team]++;
       }
-      return acc;
-    },
-    {}
-  );
+    }
+  }
 
   return TEAMS.reduce<Record<string, number>>((acc, team) => {
     const occurrences = seedingOccurrences[team.shorthand] ?? 0;
     acc[team.shorthand] = (occurrences / totalOutcomes) * 100;
     return acc;
   }, {});
-}
-
-// Can we do this in a smarter way?
-function coinFlip(n: number): string[] {
-  return n <= 0 ? [""] : coinFlip(n - 1).flatMap((r) => [r + "H", r + "T"]);
 }

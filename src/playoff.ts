@@ -1,10 +1,11 @@
 import {
+  AFC_DIVISIONS,
   AFC_TEAMS,
   Conference,
   DIVISIONS,
+  NFC_DIVISIONS,
   NFC_TEAMS,
   TEAM_MAP,
-  isDivisionInConference,
 } from "./data";
 import { TeamRecord, TeamRecordData, getMultipleRecords } from "./records";
 import { Schedule } from "./schedule";
@@ -162,7 +163,7 @@ function breakConferenceTie(records: TeamRecord[]): TeamRecord[] {
     if (worstConferenceWL !== -1) {
       const [separated, worst] = separate(records, worstConferenceWL);
       return [
-        ...breakTies(separated as TeamRecord[], true),
+        ...breakTies(separated as TeamRecord[], false),
         worst as TeamRecord,
       ];
     }
@@ -196,18 +197,27 @@ function sortRecords(records: TeamRecord[], isDivision: boolean) {
   return tiesBroken;
 }
 
-function getDivisionWinners(records: TeamRecord[], conference?: Conference) {
-  const filteredDivisions = conference
-    ? DIVISIONS.filter((division) =>
-        isDivisionInConference(division, conference)
-      )
-    : DIVISIONS;
+function getDivisionWinners(records: TeamRecord[], conference: Conference) {
+  const filteredDivisions =
+    conference === Conference.AFC ? AFC_DIVISIONS : NFC_DIVISIONS;
   return filteredDivisions.map((division) => {
     const filteredRecords = records.filter(
       (record) => record.division === division
     );
-    const sortedRecords = sortRecords(filteredRecords, true);
-    return sortedRecords[0]!;
+
+    // Faster version of sortRecords, this should match that implementation as close as possible.
+    const initialSort = filteredRecords.sort((a, b) => compareWL(a.record, b.record));
+    const grouped = groupRecordsByWL(initialSort);
+
+    if (grouped[0]!.length === 1) {
+      return grouped[0]![0]!;
+    }
+
+    const tiesBroken = grouped
+      .map((group) => breakTies(group, true))
+      .flat();
+  
+    return tiesBroken[0]!;
   });
 }
 

@@ -37,8 +37,12 @@ export function mergeSchedules(scheduleA: Schedule, scheduleB: Schedule) {
   return Object.entries(scheduleA).reduce<Schedule>((acc, schedule) => {
     const teamName = schedule[0];
     const gamesA = schedule[1];
-    const gamesB = scheduleB[teamName]!;
-    acc[teamName] = gamesA.concat(gamesB);
+    const gamesB = scheduleB[teamName];
+    if (gamesB) {
+      acc[teamName] = gamesA.concat(gamesB);
+    } else {
+      acc[teamName] = gamesA;
+    }
     return acc;
   }, {});
 }

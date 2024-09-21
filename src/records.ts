@@ -1,10 +1,11 @@
 import {
+  AFC_TEAMS,
   Conference,
   Division,
+  NFC_TEAMS,
   TEAMS,
   TEAM_MAP,
   Team,
-  isDivisionInConference,
 } from "./data";
 import { Schedule, TeamScheduleWeek } from "./schedule";
 
@@ -32,9 +33,26 @@ function filterByeWeeks(
 }
 
 function getRecord(weeks: TeamScheduleWeek[]) {
-  const wins = weeks.filter((week) => week?.won === true).length;
-  const losses = weeks.filter((week) => week?.won === false).length;
-  const draws = 0; // TODO
+  const { wins, losses, draws } = weeks.reduce<{
+    wins: number;
+    losses: number;
+    draws: number;
+  }>(
+    (acc, week) => {
+      if (week.won) {
+        acc.wins++;
+      } else {
+        acc.losses++;
+      }
+      return acc;
+    },
+    {
+      wins: 0,
+      losses: 0,
+      // TODO
+      draws: 0,
+    }
+  );
   const adjustedWins = wins + 0.5 * draws;
   const adjustedLosses = losses + 0.5 * draws;
   const totalGames = adjustedWins + adjustedLosses;
@@ -46,20 +64,6 @@ function getRecordAgainst(weeks: TeamScheduleWeek[], opposingTeams: string[]) {
   return getRecord(
     weeks.filter((week) => opposingTeams.includes(week.opponent))
   );
-}
-
-function getH2HRecords(weeks: TeamScheduleWeek[], teamShorthand: string) {
-  const ownTeam = TEAM_MAP[teamShorthand]!;
-  return TEAMS.reduce<Record<string, TeamRecordData>>((acc, team) => {
-    // Don't calculate H2H against ourselves or teams outside our conference
-    if (
-      team.conference === ownTeam.conference &&
-      teamShorthand !== team.shorthand
-    ) {
-      acc[team.shorthand] = getRecordAgainst(weeks, [team.shorthand]);
-    }
-    return acc;
-  }, {});
 }
 
 function getDivisionRecord(weeks: TeamScheduleWeek[], division: Division) {
@@ -74,9 +78,7 @@ function getConferenceRecord(
   weeks: TeamScheduleWeek[],
   conference: Conference
 ) {
-  const conferenceTeams = TEAMS.filter(
-    (team) => team.conference === conference
-  );
+  const conferenceTeams = conference === Conference.AFC ? AFC_TEAMS : NFC_TEAMS;
   return getRecordAgainst(
     weeks,
     conferenceTeams.map((team) => team.shorthand)

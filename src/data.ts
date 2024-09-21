@@ -19,6 +19,14 @@ export enum Division {
 
 export const DIVISIONS = Object.values(Division);
 
+export const AFC_DIVISIONS = DIVISIONS.filter((division) =>
+  isDivisionInConference(division, Conference.AFC)
+);
+
+export const NFC_DIVISIONS = DIVISIONS.filter((division) =>
+  isDivisionInConference(division, Conference.NFC)
+);
+
 function getConferenceByDivision(division: Division) {
   switch (division) {
     case Division.AFC_North:
@@ -905,10 +913,10 @@ const PLAYED_GAMES_2024 = {
   LV: [false, true],
   MIA: [true, false],
   MIN: [true, true],
-  NE: [true, false],
+  NE: [true, false, false],
   NO: [true, true],
   NYG: [false, false],
-  NYJ: [false, true],
+  NYJ: [false, true, true],
   PHI: [true, false],
   PIT: [true, true],
   SF: [true, false],
