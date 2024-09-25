@@ -39,9 +39,9 @@ function getRecord(weeks: TeamScheduleWeek[]) {
     draws: number;
   }>(
     (acc, week) => {
-      if (week.won) {
+      if (week.won === true) {
         acc.wins++;
-      } else {
+      } else if (week.won === false) {
         acc.losses++;
       }
       return acc;
@@ -96,10 +96,7 @@ function getCommonRecord(
 
   const team = TEAM_MAP[opponentShorthand]!;
 
-  if (
-    team.conference === ownTeam.conference &&
-    teamShorthand !== team.shorthand
-  ) {
+  if (team.conference === ownTeam.conference) {
     const opponentSchedule = filterByeWeeks(schedule[team.shorthand]!);
 
     // Common games are games where tie breaking teams have a common opponent
@@ -107,7 +104,7 @@ function getCommonRecord(
       .filter((match) => opponents.includes(match.opponent))
       .map((match) => match.opponent);
 
-    if (commonTeams.length >= 4) {
+    if (team.division === ownTeam.division || commonTeams.length >= 4) {
       return getRecordAgainst(ownSchedule, commonTeams);
     }
   }
