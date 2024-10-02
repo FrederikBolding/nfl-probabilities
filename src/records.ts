@@ -1,9 +1,16 @@
 import {
+  AFC_EAST_TEAMS,
+  AFC_NORTH_TEAMS,
+  AFC_SOUTH_TEAMS,
   AFC_TEAMS,
+  AFC_WEST_TEAMS,
   Conference,
   Division,
+  NFC_EAST_TEAMS,
+  NFC_NORTH_TEAMS,
+  NFC_SOUTH_TEAMS,
   NFC_TEAMS,
-  TEAMS,
+  NFC_WEST_TEAMS,
   TEAM_MAP,
   Team,
 } from "./data";
@@ -24,6 +31,8 @@ export interface TeamRecord {
   getCommonRecord: (team: string) => TeamRecordData | undefined;
   divisionRecord: TeamRecordData;
   conferenceRecord: TeamRecordData;
+  strengthOfVictory: TeamRecordData;
+  strengthOfSchedule: TeamRecordData;
 }
 
 function filterByeWeeks(
@@ -33,7 +42,7 @@ function filterByeWeeks(
 }
 
 function getRecord(weeks: TeamScheduleWeek[]) {
-  const { wins, losses, draws } = weeks.reduce<{
+  const record = weeks.reduce<{
     wins: number;
     losses: number;
     draws: number;
@@ -53,6 +62,18 @@ function getRecord(weeks: TeamScheduleWeek[]) {
       draws: 0,
     }
   );
+  return calculateWL(record);
+}
+
+function calculateWL({
+  wins,
+  losses,
+  draws,
+}: {
+  wins: number;
+  losses: number;
+  draws: number;
+}) {
   const adjustedWins = wins + 0.5 * draws;
   const adjustedLosses = losses + 0.5 * draws;
   const totalGames = adjustedWins + adjustedLosses;
@@ -66,12 +87,31 @@ function getRecordAgainst(weeks: TeamScheduleWeek[], opposingTeams: string[]) {
   );
 }
 
+function getDivisionTeams(division: Division) {
+  switch (division) {
+    default:
+    case Division.AFC_North:
+      return AFC_NORTH_TEAMS;
+    case Division.AFC_South:
+      return AFC_SOUTH_TEAMS;
+    case Division.AFC_East:
+      return AFC_EAST_TEAMS;
+    case Division.AFC_West:
+      return AFC_WEST_TEAMS;
+    case Division.NFC_North:
+      return NFC_NORTH_TEAMS;
+    case Division.NFC_South:
+      return NFC_SOUTH_TEAMS;
+    case Division.NFC_East:
+      return NFC_EAST_TEAMS;
+    case Division.NFC_West:
+      return NFC_WEST_TEAMS;
+  }
+}
+
 function getDivisionRecord(weeks: TeamScheduleWeek[], division: Division) {
-  const divisionTeams = TEAMS.filter((team) => team.division === division);
-  return getRecordAgainst(
-    weeks,
-    divisionTeams.map((team) => team.shorthand)
-  );
+  const divisionTeams = getDivisionTeams(division);
+  return getRecordAgainst(weeks, divisionTeams);
 }
 
 function getConferenceRecord(
@@ -79,10 +119,7 @@ function getConferenceRecord(
   conference: Conference
 ) {
   const conferenceTeams = conference === Conference.AFC ? AFC_TEAMS : NFC_TEAMS;
-  return getRecordAgainst(
-    weeks,
-    conferenceTeams.map((team) => team.shorthand)
-  );
+  return getRecordAgainst(weeks, conferenceTeams);
 }
 
 function getCommonRecord(
@@ -112,6 +149,39 @@ function getCommonRecord(
   return undefined;
 }
 
+function getStrengthOfSchedule(
+  schedule: Schedule,
+  teamShorthand: string,
+  victoryOnly: boolean
+) {
+  const ownSchedule = filterByeWeeks(schedule[teamShorthand]!);
+  const opponents = ownSchedule
+    .filter((opponent) => (victoryOnly && opponent.won) || !victoryOnly)
+    .map((match) => match.opponent);
+
+  const records = opponents.map((opponent) => getRecord(filterByeWeeks(schedule[opponent]!)));
+
+  const totalRecord = records.reduce<{
+    wins: number;
+    losses: number;
+    draws: number;
+  }>(
+    (accumulator, record) => {
+      accumulator.wins += record.wins;
+      accumulator.losses += record.losses;
+      accumulator.draws += record.draws;
+      return accumulator;
+    },
+    {
+      wins: 0,
+      losses: 0,
+      draws: 0,
+    }
+  );
+
+  return calculateWL(totalRecord);
+}
+
 export function getMultipleRecords(
   schedule: Schedule,
   teams: Team[]
@@ -132,13 +202,13 @@ export function getMultipleRecords(
         this.record = getRecord(weeks);
         return this.record;
       },
-      getH2H(input) {
+      getH2H(input: string) {
         if (!(input in h2h)) {
           h2h[input] = getRecordAgainst(weeks, [input]);
         }
         return h2h[input]!;
       },
-      getCommonRecord(input) {
+      getCommonRecord(input: string) {
         if (!(input in commonRecord)) {
           commonRecord[input] = getCommonRecord(
             schedule,
@@ -161,6 +231,28 @@ export function getMultipleRecords(
         // @ts-ignore TypeScript doesn't like this with good reason.
         this.conferenceRecord = getConferenceRecord(weeks, team.conference);
         return this.conferenceRecord;
+      },
+      get strengthOfVictory(): TeamRecordData {
+        // @ts-ignore TypeScript doesn't like this with good reason.
+        delete this.strengthOfVictory;
+        // @ts-ignore TypeScript doesn't like this with good reason.
+        this.strengthOfVictory = getStrengthOfSchedule(
+          schedule,
+          team.shorthand,
+          true
+        );
+        return this.strengthOfVictory;
+      },
+      get strengthOfSchedule(): TeamRecordData {
+        // @ts-ignore TypeScript doesn't like this with good reason.
+        delete this.strengthOfSchedule;
+        // @ts-ignore TypeScript doesn't like this with good reason.
+        this.strengthOfSchedule = getStrengthOfSchedule(
+          schedule,
+          team.shorthand,
+          false
+        );
+        return this.strengthOfSchedule;
       },
     };
   });

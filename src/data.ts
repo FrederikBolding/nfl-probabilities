@@ -229,10 +229,37 @@ export const TEAMS: Team[] = Object.entries(TEAMS_OBJECTS).reduce(
 
 export const NFC_TEAMS = TEAMS.filter(
   (team) => team.conference === Conference.NFC
-);
+).map(team => team.shorthand);
+
 export const AFC_TEAMS = TEAMS.filter(
   (team) => team.conference === Conference.AFC
-);
+).map(team => team.shorthand);
+
+export const AFC_EAST_TEAMS = TEAMS.filter(
+  (team) => team.division === Division.AFC_East
+).map(team => team.shorthand);
+export const AFC_NORTH_TEAMS = TEAMS.filter(
+  (team) => team.division === Division.AFC_North
+).map(team => team.shorthand);
+export const AFC_SOUTH_TEAMS = TEAMS.filter(
+  (team) => team.division === Division.AFC_South
+).map(team => team.shorthand);
+export const AFC_WEST_TEAMS = TEAMS.filter(
+  (team) => team.division === Division.AFC_West
+).map(team => team.shorthand);
+
+export const NFC_EAST_TEAMS = TEAMS.filter(
+  (team) => team.division === Division.NFC_East
+).map(team => team.shorthand);
+export const NFC_NORTH_TEAMS = TEAMS.filter(
+  (team) => team.division === Division.NFC_North
+).map(team => team.shorthand);
+export const NFC_SOUTH_TEAMS = TEAMS.filter(
+  (team) => team.division === Division.NFC_South
+).map(team => team.shorthand);
+export const NFC_WEST_TEAMS = TEAMS.filter(
+  (team) => team.division === Division.NFC_West
+).map(team => team.shorthand);
 
 // Clean this up
 export const TEAM_MAP = TEAMS.reduce<Record<string, Team>>((acc, team) => {
@@ -892,38 +919,38 @@ WSH ARI @DEN BUF @PHI CHI @ATL @NYG PHI @NE @SEA NYG @DAL MIA BYE @LAR @NYJ SF D
 );
 
 const PLAYED_GAMES_2024 = {
-  ARI: [false, true, false],
-  ATL: [false, true, false],
-  BAL: [false, false, false],
-  BUF: [true, true, true],
-  CAR: [false, false, true],
-  CHI: [true, false, false],
-  CIN: [false, false, false],
-  CLE: [false, true, false],
-  DAL: [true, false, false],
-  DEN: [false, false, true],
-  DET: [true, false, true],
-  GB: [false, true, true],
-  HOU: [true, true, false],
-  IND: [false, false, true],
-  JAX: [false, false, false],
-  KC: [true, true, true],
-  LAC: [true, true, true],
-  LAR: [false, false, true],
-  LV: [false, true, false],
-  MIA: [true, false, false],
-  MIN: [true, true, true],
-  NE: [true, false, false],
-  NO: [true, true, false],
-  NYG: [false, false, true],
-  NYJ: [false, true, true],
-  PHI: [true, false, true],
-  PIT: [true, true, true],
-  SF: [true, false, false],
-  SEA: [true, true, true],
-  TB: [true, true, false],
-  TEN: [false, false, false],
-  WSH: [false, true, true],
+  ARI: [false, true, false, false],
+  ATL: [false, true, false, true],
+  BAL: [false, false, false, true],
+  BUF: [true, true, true, false],
+  CAR: [false, false, true, false],
+  CHI: [true, false, false, true],
+  CIN: [false, false, false, true],
+  CLE: [false, true, false, false],
+  DAL: [true, false, false, true],
+  DEN: [false, false, true, true],
+  DET: [true, false, true, true],
+  GB: [false, true, true, false],
+  HOU: [true, true, false, true],
+  IND: [false, false, true, true],
+  JAX: [false, false, false, false],
+  KC: [true, true, true, true],
+  LAC: [true, true, true, false],
+  LAR: [false, false, true, false],
+  LV: [false, true, false, true],
+  MIA: [true, false, false, false],
+  MIN: [true, true, true, true],
+  NE: [true, false, false, false],
+  NO: [true, true, false, false],
+  NYG: [false, false, true, false],
+  NYJ: [false, true, true, false],
+  PHI: [true, false, true, false],
+  PIT: [true, true, true, false],
+  SF: [true, false, false, true],
+  SEA: [true, true, true, false],
+  TB: [true, true, false, true],
+  TEN: [false, false, false, true],
+  WSH: [false, true, true, true],
 };
 
 export const SCHEDULE_2024 = parseSchedule(

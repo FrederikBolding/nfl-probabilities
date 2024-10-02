@@ -71,7 +71,11 @@ export function calculatePlayoffProbability(
 
   const totalOutcomes = 2 ** unplayedMatchups.length;
 
-  console.log(`Computing seedings for all ${totalOutcomes} outcomes... (slow)`);
+  console.log(
+    `Computing seedings for all ${totalOutcomes.toLocaleString("fullwide", {
+      useGrouping: false,
+    })} outcomes... (slow)`
+  );
 
   const seedingOccurrences: Record<string, number> = {};
 

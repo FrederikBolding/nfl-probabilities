@@ -52,6 +52,24 @@ function sortRecordsInDivision(a: TeamRecord, b: TeamRecord) {
     return conferenceDiff;
   }
 
+  // Next, look at strength of victory
+  const strengthOfVictoryDiff = compareWL(
+    a.strengthOfVictory,
+    b.strengthOfVictory
+  );
+  if (strengthOfVictoryDiff !== 0) {
+    return strengthOfVictoryDiff;
+  }
+
+  // Next, look at strength of schedule
+  const strengthOfScheduleDiff = compareWL(
+    a.strengthOfSchedule,
+    b.strengthOfSchedule
+  );
+  if (strengthOfScheduleDiff !== 0) {
+    return strengthOfScheduleDiff;
+  }
+
   // TODO: Deal with more tie breakers
   // TODO: Consider three+-way ties
   //return 0;
@@ -94,6 +112,24 @@ function sortRecordsInConference(a: TeamRecord, b: TeamRecord) {
     if (commonGameDiff !== 0) {
       return commonGameDiff;
     }
+  }
+
+  // Next, look at strength of victory
+  const strengthOfVictoryDiff = compareWL(
+    a.strengthOfVictory,
+    b.strengthOfVictory
+  );
+  if (strengthOfVictoryDiff !== 0) {
+    return strengthOfVictoryDiff;
+  }
+
+  // Next, look at strength of schedule
+  const strengthOfScheduleDiff = compareWL(
+    a.strengthOfSchedule,
+    b.strengthOfSchedule
+  );
+  if (strengthOfScheduleDiff !== 0) {
+    return strengthOfScheduleDiff;
   }
 
   // TODO: Deal with more tie breakers
@@ -153,6 +189,9 @@ function breakDivisionTie(records: TeamRecord[]): TeamRecord[] {
 }
 
 function breakConferenceTie(records: TeamRecord[]): TeamRecord[] {
+  if (records.every((record) => record.division === records[0]!.division)) {
+    return breakDivisionTie(records);
+  }
   if (records.length > 2) {
     // TODO: Reimplement from sortRecordsInConference
 
@@ -206,16 +245,16 @@ function getDivisionWinners(records: TeamRecord[], conference: Conference) {
     );
 
     // Faster version of sortRecords, this should match that implementation as close as possible.
-    const initialSort = filteredRecords.sort((a, b) => compareWL(a.record, b.record));
+    const initialSort = filteredRecords.sort((a, b) =>
+      compareWL(a.record, b.record)
+    );
     const grouped = groupRecordsByWL(initialSort);
 
     if (grouped[0]!.length === 1) {
       return grouped[0]![0]!;
     }
 
-    const tiesBroken = grouped
-      .map((group) => breakTies(group, true))
-      .flat();
+    const tiesBroken = grouped.map((group) => breakTies(group, true)).flat();
   
     return tiesBroken[0]!;
   });
@@ -230,7 +269,10 @@ export function getSeeding(schedule: Schedule) {
 function getConferenceSeeding(schedule: Schedule, conference: Conference) {
   const conferenceTeams = conference === Conference.AFC ? AFC_TEAMS : NFC_TEAMS;
 
-  const records = getMultipleRecords(schedule, conferenceTeams);
+  const records = getMultipleRecords(
+    schedule,
+    conferenceTeams.map((team) => TEAM_MAP[team]!)
+  );
 
   const divisionWinners = sortRecords(
     getDivisionWinners(records, conference),
@@ -239,8 +281,8 @@ function getConferenceSeeding(schedule: Schedule, conference: Conference) {
 
   const remainingTeams = setDiff(
     conferenceTeams,
-    divisionWinners.map((team) => TEAM_MAP[team.shorthand]!)
-  ).map((team) => team.shorthand);
+    divisionWinners.map((team) => team.shorthand)
+  );
 
   const remainingTeamRecords = records.filter((record) =>
     remainingTeams.includes(record.shorthand)
