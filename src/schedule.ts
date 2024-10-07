@@ -24,9 +24,18 @@ export function parseSchedule(
 
         const away = opponent.startsWith("@");
         const opponentShorthand = opponent.slice(away ? 1 : 0);
+        const opponentPlayedGames = playedGames[opponentShorthand]!;
         const won = teamPlayedGames[index] ?? null;
 
-        return { opponent: opponentShorthand, away, won, week: index + 1 };
+        const week = index + 1;
+
+        if (won !== null && won === opponentPlayedGames[index]) {
+          throw new Error(
+            `${teamShorthand} and ${opponentShorthand} cannot both have won/lost week ${week}`
+          );
+        }
+
+        return { opponent: opponentShorthand, away, won, week };
       });
       return [teamShorthand, games];
     })
