@@ -928,7 +928,7 @@ const PLAYED_GAMES_2024 = {
   CIN: [false, false, false, true, false, true],
   CLE: [false, true, false, false, false, false],
   DAL: [true, false, false, true, true, false],
-  DEN: [false, false, true, true, true, false],
+  DEN: [false, false, true, true, true, false, true],
   DET: [true, false, true, true, null, true],
   GB: [false, true, true, false, true, true],
   HOU: [true, true, false, true, true, true],

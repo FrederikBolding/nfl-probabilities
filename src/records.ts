@@ -27,8 +27,8 @@ export interface TeamRecord {
   shorthand: string;
   division: Division;
   record: TeamRecordData;
-  getH2H: (team: string) => TeamRecordData;
-  getCommonRecord: (team: string) => TeamRecordData | undefined;
+  getH2H: (teams: string[]) => TeamRecordData;
+  getCommonRecord: (teams: string[]) => TeamRecordData | undefined;
   divisionRecord: TeamRecordData;
   conferenceRecord: TeamRecordData;
   strengthOfVictory: TeamRecordData;
@@ -77,7 +77,7 @@ function calculateWL({
   const adjustedWins = wins + 0.5 * draws;
   const adjustedLosses = losses + 0.5 * draws;
   const totalGames = adjustedWins + adjustedLosses;
-  const wl = adjustedWins / totalGames;
+  const wl = totalGames > 0 ? adjustedWins / totalGames : 0;
   return { wins, losses, draws, wl };
 }
 
@@ -125,25 +125,29 @@ function getConferenceRecord(
 function getCommonRecord(
   schedule: Schedule,
   teamShorthand: string,
-  opponentShorthand: string
+  teamShorthands: string[]
 ) {
-  const ownTeam = TEAM_MAP[teamShorthand]!;
   const ownSchedule = filterByeWeeks(schedule[teamShorthand]!);
-  const opponents = ownSchedule.map((match) => match.opponent);
+  const teams = teamShorthands.map((shorthand) => TEAM_MAP[shorthand]!);
 
-  const team = TEAM_MAP[opponentShorthand]!;
+  const schedules = teams.map((team) =>
+    filterByeWeeks(schedule[team.shorthand]!)
+  );
 
-  if (team.conference === ownTeam.conference) {
-    const opponentSchedule = filterByeWeeks(schedule[team.shorthand]!);
+  const ownOpponents = ownSchedule.map((week) => week.opponent);
 
-    // Common games are games where tie breaking teams have a common opponent
-    const commonTeams = opponentSchedule!
-      .filter((match) => opponents.includes(match.opponent))
-      .map((match) => match.opponent);
+  const allOpponents = schedules.map((weeks) =>
+    weeks.map((week) => week.opponent)
+  );
 
-    if (team.division === ownTeam.division || commonTeams.length >= 4) {
-      return getRecordAgainst(ownSchedule, commonTeams);
-    }
+  const commonOpponents = ownOpponents.filter((potentialCommonOpponent) =>
+    allOpponents.every((opponents) =>
+      opponents.includes(potentialCommonOpponent)
+    )
+  );
+
+  if (commonOpponents.length >= 4) {
+    return getRecordAgainst(ownSchedule, commonOpponents);
   }
 
   return undefined;
@@ -159,7 +163,9 @@ function getStrengthOfSchedule(
     .filter((opponent) => (victoryOnly && opponent.won) || !victoryOnly)
     .map((match) => match.opponent);
 
-  const records = opponents.map((opponent) => getRecord(filterByeWeeks(schedule[opponent]!)));
+  const records = opponents.map((opponent) =>
+    getRecord(filterByeWeeks(schedule[opponent]!))
+  );
 
   const totalRecord = records.reduce<{
     wins: number;
@@ -202,21 +208,23 @@ export function getMultipleRecords(
         this.record = getRecord(weeks);
         return this.record;
       },
-      getH2H(input: string) {
-        if (!(input in h2h)) {
-          h2h[input] = getRecordAgainst(weeks, [input]);
+      getH2H(input: string[]) {
+        const cacheKey = input.join();
+        if (!(cacheKey in h2h)) {
+          h2h[cacheKey] = getRecordAgainst(weeks, input);
         }
-        return h2h[input]!;
+        return h2h[cacheKey]!;
       },
-      getCommonRecord(input: string) {
-        if (!(input in commonRecord)) {
-          commonRecord[input] = getCommonRecord(
+      getCommonRecord(input: string[]) {
+        const cacheKey = input.join();
+        if (!(cacheKey in commonRecord)) {
+          commonRecord[cacheKey] = getCommonRecord(
             schedule,
             team.shorthand,
             input
           );
         }
-        return commonRecord[input]!;
+        return commonRecord[cacheKey]!;
       },
       get divisionRecord(): TeamRecordData {
         // @ts-ignore TypeScript doesn't like this with good reason.

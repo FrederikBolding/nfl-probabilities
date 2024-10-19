@@ -2,7 +2,6 @@ import {
   AFC_DIVISIONS,
   AFC_TEAMS,
   Conference,
-  DIVISIONS,
   NFC_DIVISIONS,
   NFC_TEAMS,
   TEAM_MAP,
@@ -15,134 +14,133 @@ function compareWL(a: TeamRecordData, b: TeamRecordData) {
   return b.wl - a.wl;
 }
 
-function sortRecordsInDivision(a: TeamRecord, b: TeamRecord) {
-  // Sort by W/L percentage at first.
-  const wlDiff = compareWL(a.record, b.record);
-  if (wlDiff !== 0) {
-    return wlDiff;
-  }
-
-  // Next, look at H2H.
-  const aH2H = a.getH2H(b.shorthand);
-  const bH2H = b.getH2H(a.shorthand);
-  const h2hDiff = compareWL(aH2H, bH2H);
-  if (h2hDiff !== 0) {
-    return h2hDiff;
+function findDivisionTiebreakEliminationIndex(records: TeamRecord[]): number {
+  // First, look at H2H.
+  const h2h = records.map(
+    (record) =>
+      record.getH2H(
+        records
+          .filter((opponent) => opponent.shorthand !== record.shorthand)
+          .map((opponent) => opponent.shorthand)
+      ).wl
+  );
+  const h2hIndex = findMinIndex(h2h);
+  if (h2hIndex !== -1) {
+    return h2hIndex;
   }
 
   // Next, look at division W/L
-  const divisionDiff = compareWL(a.divisionRecord, b.divisionRecord);
-  if (divisionDiff !== 0) {
-    return divisionDiff;
+  const divisionIndex = findMinIndex(
+    records.map((record) => record.divisionRecord.wl)
+  );
+  if (divisionIndex !== -1) {
+    return divisionIndex;
   }
 
   // Next, look at common games
-  const aCommonRecord = a.getCommonRecord(b.shorthand);
-  const bCommonRecord = b.getCommonRecord(a.shorthand);
-  if (aCommonRecord && bCommonRecord) {
-    const commonGameDiff = compareWL(aCommonRecord, bCommonRecord);
-    if (commonGameDiff !== 0) {
-      return commonGameDiff;
-    }
+  const commonRecords = records.map((record) =>
+    record.getCommonRecord(
+      records
+        .filter((opponent) => opponent.shorthand !== record.shorthand)
+        .map((opponent) => opponent.shorthand)
+    )
+  );
+  const commonRecordIndex = findMinIndex(
+    commonRecords.map((record) => record!.wl)
+  );
+  if (commonRecordIndex !== -1) {
+    return commonRecordIndex;
   }
 
   // Next, look at conference record
-  const conferenceDiff = compareWL(a.conferenceRecord, b.conferenceRecord);
-  if (conferenceDiff !== 0) {
-    return conferenceDiff;
+  const conferenceIndex = findMinIndex(
+    records.map((record) => record.conferenceRecord.wl)
+  );
+  if (conferenceIndex !== -1) {
+    return conferenceIndex;
   }
 
   // Next, look at strength of victory
-  const strengthOfVictoryDiff = compareWL(
-    a.strengthOfVictory,
-    b.strengthOfVictory
+  const strengthOfVictoryIndex = findMinIndex(
+    records.map((record) => record.strengthOfVictory.wl)
   );
-  if (strengthOfVictoryDiff !== 0) {
-    return strengthOfVictoryDiff;
+  if (strengthOfVictoryIndex !== -1) {
+    return strengthOfVictoryIndex;
   }
 
   // Next, look at strength of schedule
-  const strengthOfScheduleDiff = compareWL(
-    a.strengthOfSchedule,
-    b.strengthOfSchedule
+  const strengthOfScheduleIndex = findMinIndex(
+    records.map((record) => record.strengthOfSchedule.wl)
   );
-  if (strengthOfScheduleDiff !== 0) {
-    return strengthOfScheduleDiff;
+  if (strengthOfScheduleIndex !== -1) {
+    return strengthOfScheduleIndex;
   }
 
   // TODO: Deal with more tie breakers
-  // TODO: Consider three+-way ties
-  //return 0;
 
-  throw new Error(
-    `Failed to break tie between ${a.shorthand} and ${
-      b.shorthand
-    } ${JSON.stringify(a.conferenceRecord)} ${JSON.stringify(
-      b.conferenceRecord
-    )}`
-  );
+  return -1;
 }
 
-function sortRecordsInConference(a: TeamRecord, b: TeamRecord) {
-  // Sort by W/L percentage at first.
-  const wlDiff = compareWL(a.record, b.record);
-  if (wlDiff !== 0) {
-    return wlDiff;
-  }
-
-  // Next, look at H2H.
-  const aH2H = a.getH2H(b.shorthand);
-  const bH2H = b.getH2H(a.shorthand);
-  const h2hDiff = compareWL(aH2H, bH2H);
-  if (h2hDiff !== 0) {
-    return h2hDiff;
-  }
-
-  // Next, look at conference record
-  const conferenceDiff = compareWL(a.conferenceRecord, b.conferenceRecord);
-  if (conferenceDiff !== 0) {
-    return conferenceDiff;
-  }
-
-  // Next, look at common games
-  const aCommonRecord = a.getCommonRecord(b.shorthand);
-  const bCommonRecord = b.getCommonRecord(a.shorthand);
-  if (aCommonRecord && bCommonRecord) {
-    const commonGameDiff = compareWL(aCommonRecord, bCommonRecord);
-    if (commonGameDiff !== 0) {
-      return commonGameDiff;
+function findConferenceTiebreakEliminationIndex(records: TeamRecord[]) {
+  // First, look at H2H.
+  // TODO: Handle sweep rule for three+ way tie.
+  if (records.length === 2) {
+    const h2h = records.map(
+      (record) =>
+        record.getH2H(
+          records
+            .filter((opponent) => opponent.shorthand !== record.shorthand)
+            .map((opponent) => opponent.shorthand)
+        ).wl
+    );
+    const h2hIndex = findMinIndex(h2h);
+    if (h2hIndex !== -1) {
+      console.log("Tiebreak via H2H");
+      return h2hIndex;
     }
   }
 
-  // Next, look at strength of victory
-  const strengthOfVictoryDiff = compareWL(
-    a.strengthOfVictory,
-    b.strengthOfVictory
+  // Next, look at conference record
+  const conferenceIndex = findMinIndex(
+    records.map((record) => record.conferenceRecord.wl)
   );
-  if (strengthOfVictoryDiff !== 0) {
-    return strengthOfVictoryDiff;
+  if (conferenceIndex !== -1) {
+    return conferenceIndex;
+  }
+
+  // Next, look at common games
+  const commonRecords = records.map((record) =>
+    record.getCommonRecord(
+      records
+        .filter((opponent) => opponent.shorthand !== record.shorthand)
+        .map((opponent) => opponent.shorthand)
+    )
+  );
+  const commonRecordIndex = findMinIndex(
+    commonRecords.map((record) => record!.wl)
+  );
+  if (commonRecordIndex !== -1) {
+    return commonRecordIndex;
+  }
+
+  // Next, look at strength of victory
+  const strengthOfVictoryIndex = findMinIndex(
+    records.map((record) => record.strengthOfVictory.wl)
+  );
+  if (strengthOfVictoryIndex !== -1) {
+    return strengthOfVictoryIndex;
   }
 
   // Next, look at strength of schedule
-  const strengthOfScheduleDiff = compareWL(
-    a.strengthOfSchedule,
-    b.strengthOfSchedule
+  const strengthOfScheduleIndex = findMinIndex(
+    records.map((record) => record.strengthOfSchedule.wl)
   );
-  if (strengthOfScheduleDiff !== 0) {
-    return strengthOfScheduleDiff;
+  if (strengthOfScheduleIndex !== -1) {
+    return strengthOfScheduleIndex;
   }
 
   // TODO: Deal with more tie breakers
-  // TODO: Consider three+-way ties
-  //return 0;
-
-  throw new Error(
-    `Failed to break tie between ${a.shorthand} and ${
-      b.shorthand
-    } ${JSON.stringify(a.conferenceRecord)} ${JSON.stringify(
-      b.conferenceRecord
-    )}`
-  );
+  return -1;
 }
 
 function groupRecordsByWL(records: TeamRecord[]) {
@@ -162,68 +160,64 @@ function groupRecordsByWL(records: TeamRecord[]) {
   );
 }
 
-function breakDivisionTie(records: TeamRecord[]): TeamRecord[] {
-  if (records.length > 2) {
-    // TODO: Reimplement from sortRecordsInDivision
-
-    const worstConferenceWL = findMinIndex(
-      records.map((record) => record.conferenceRecord.wl)
-    );
-
-    if (worstConferenceWL !== -1) {
-      const [separated, worst] = separate(records, worstConferenceWL);
-      return [
-        ...breakTies(separated as TeamRecord[], true),
-        worst as TeamRecord,
-      ];
-    }
-
-    throw new Error(
-      `Failed to break tie between ${records
-        .map((record) => record.shorthand)
-        .join(",")}`
-    );
-  }
-
-  return records.sort(sortRecordsInDivision);
-}
-
-function breakConferenceTie(records: TeamRecord[]): TeamRecord[] {
-  if (records.every((record) => record.division === records[0]!.division)) {
-    return breakDivisionTie(records);
-  }
-  if (records.length > 2) {
-    // TODO: Reimplement from sortRecordsInConference
-
-    const worstConferenceWL = findMinIndex(
-      records.map((record) => record.conferenceRecord.wl)
-    );
-
-    if (worstConferenceWL !== -1) {
-      const [separated, worst] = separate(records, worstConferenceWL);
-      return [
-        ...breakTies(separated as TeamRecord[], false),
-        worst as TeamRecord,
-      ];
-    }
-
-    throw new Error(
-      `Failed to break tie between ${records
-        .map((record) => record.shorthand)
-        .join(",")}`
-    );
-  }
-
-  return records.sort(sortRecordsInConference);
-}
-
-function breakTies(records: TeamRecord[], isDivisionTie: boolean) {
+function breakTies(
+  records: TeamRecord[],
+  isDivisionTie: boolean
+): TeamRecord[] {
   if (records.length === 1) {
     return records;
   }
-  return isDivisionTie
-    ? breakDivisionTie(records)
-    : breakConferenceTie(records);
+  const isDivision =
+    isDivisionTie ||
+    records.every((record) => record.division === records[0]!.division);
+
+  const divisions = records.reduce<Record<string, number>>(
+    (accumulator, record) => {
+      if (!(record.division in accumulator)) {
+        accumulator[record.division] = 0;
+      }
+      accumulator[record.division]++;
+      return accumulator;
+    },
+    {}
+  );
+
+  const divisionToBreak = Object.entries(divisions).find(
+    ([_key, value]) => value > 1
+  )?.[0];
+
+  // If we are breaking ties for a wildcard and have multiple teams from the same division, we need to look at eliminating the worst team from that division.
+  // TODO: Eliminated teams should be reconsidered in following rounds of tie breaking.
+  if (!isDivisionTie && divisionToBreak) {
+    const divisionRecords = records.filter(
+      (record) => record.division === divisionToBreak
+    );
+    const divisionIndex = findDivisionTiebreakEliminationIndex(divisionRecords);
+    const index = records.findIndex(
+      (record) => record.shorthand === divisionRecords[divisionIndex]!.shorthand
+    );
+    const [separated, worst] = separate(records, index);
+    return [
+      ...breakTies(separated as TeamRecord[], isDivision),
+      worst as TeamRecord,
+    ];
+  }
+
+  const index = isDivision
+    ? findDivisionTiebreakEliminationIndex(records)
+    : findConferenceTiebreakEliminationIndex(records);
+  if (index === -1) {
+    throw new Error(
+      `Failed to break tie between: ${records
+        .map((record) => record.shorthand)
+        .join(",")}`
+    );
+  }
+  const [separated, worst] = separate(records, index);
+  return [
+    ...breakTies(separated as TeamRecord[], isDivision),
+    worst as TeamRecord,
+  ];
 }
 
 function sortRecords(records: TeamRecord[], isDivision: boolean) {
@@ -255,7 +249,7 @@ function getDivisionWinners(records: TeamRecord[], conference: Conference) {
     }
 
     const tiesBroken = grouped.map((group) => breakTies(group, true)).flat();
-  
+
     return tiesBroken[0]!;
   });
 }
