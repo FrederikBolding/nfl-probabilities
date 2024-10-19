@@ -38,13 +38,15 @@ function findDivisionTiebreakEliminationIndex(records: TeamRecord[]): number {
   }
 
   // Next, look at common games
-  const commonRecords = records.map((record) =>
-    record.getCommonRecord(
-      records
-        .filter((opponent) => opponent.shorthand !== record.shorthand)
-        .map((opponent) => opponent.shorthand)
+  const commonRecords = records
+    .map((record) =>
+      record.getCommonRecord(
+        records
+          .filter((opponent) => opponent.shorthand !== record.shorthand)
+          .map((opponent) => opponent.shorthand)
+      )
     )
-  );
+    .filter(Boolean);
   const commonRecordIndex = findMinIndex(
     commonRecords.map((record) => record!.wl)
   );
@@ -95,7 +97,6 @@ function findConferenceTiebreakEliminationIndex(records: TeamRecord[]) {
     );
     const h2hIndex = findMinIndex(h2h);
     if (h2hIndex !== -1) {
-      console.log("Tiebreak via H2H");
       return h2hIndex;
     }
   }
@@ -109,13 +110,15 @@ function findConferenceTiebreakEliminationIndex(records: TeamRecord[]) {
   }
 
   // Next, look at common games
-  const commonRecords = records.map((record) =>
-    record.getCommonRecord(
-      records
-        .filter((opponent) => opponent.shorthand !== record.shorthand)
-        .map((opponent) => opponent.shorthand)
+  const commonRecords = records
+    .map((record) =>
+      record.getCommonRecord(
+        records
+          .filter((opponent) => opponent.shorthand !== record.shorthand)
+          .map((opponent) => opponent.shorthand)
+      )
     )
-  );
+    .filter(Boolean);
   const commonRecordIndex = findMinIndex(
     commonRecords.map((record) => record!.wl)
   );
@@ -193,6 +196,13 @@ function breakTies(
       (record) => record.division === divisionToBreak
     );
     const divisionIndex = findDivisionTiebreakEliminationIndex(divisionRecords);
+    if (divisionIndex === -1) {
+      throw new Error(
+        `Failed to break tie between: ${divisionRecords
+          .map((record) => record.shorthand)
+          .join(",")}`
+      );
+    }
     const index = records.findIndex(
       (record) => record.shorthand === divisionRecords[divisionIndex]!.shorthand
     );
