@@ -17,6 +17,40 @@ interface DecidedMatchup {
   winner: string;
 }
 
+function permutationsExtensive(n: number) {
+  return permutationsFn([true, false], n);
+}
+
+function* permutationsRandomSample(n: number, samples: number) {
+  for (let i = 0; i < samples; i++) {
+    yield new Array(n).fill(0).map(() => Math.random() < 0.5);
+  }
+}
+
+function generatePermutations(n: number) {
+  const outcomes = 2 ** n;
+  const samples = 100_000;
+
+  if (outcomes <= samples) {
+    console.log(
+      `Computing seedings for all ${outcomes.toLocaleString("fullwide", {
+        useGrouping: false,
+      })} outcomes (${n} remaining games)...`
+    );
+    return { length: outcomes, permutations: permutationsExtensive(n) };
+  }
+
+  console.log(
+    `Computing seedings for ${samples.toLocaleString("fullwide", {
+      useGrouping: false,
+    })} random outcomes (${n} remaining games)...`
+  );
+  return {
+    length: samples,
+    permutations: permutationsRandomSample(n, samples),
+  };
+}
+
 export function calculatePlayoffProbability(
   schedule: Schedule
 ): Record<string, number> {
@@ -63,18 +97,8 @@ export function calculatePlayoffProbability(
     return acc.concat(matchups);
   }, []);
 
-  console.log(
-    `Computing possible outcomes (${unplayedMatchups.length} remaining games)...`
-  );
-
-  const permutations = permutationsFn([true, false], unplayedMatchups.length);
-
-  const totalOutcomes = 2 ** unplayedMatchups.length;
-
-  console.log(
-    `Computing seedings for all ${totalOutcomes.toLocaleString("fullwide", {
-      useGrouping: false,
-    })} outcomes... (slow)`
+  const { permutations, length: outcomesTested } = generatePermutations(
+    unplayedMatchups.length
   );
 
   const seedingOccurrences: Record<string, number> = {};
@@ -106,22 +130,26 @@ export function calculatePlayoffProbability(
       {}
     );
 
-    const mergedSchedule = mergeSchedules(decidedSchedule, possibleSchedule);
-    const { nfc, afc } = getSeeding(mergedSchedule);
-    const combinedSeeding = nfc.concat(afc);
+    try {
+      const mergedSchedule = mergeSchedules(decidedSchedule, possibleSchedule);
+      const { nfc, afc } = getSeeding(mergedSchedule);
+      const combinedSeeding = nfc.concat(afc);
 
-    for (const team of combinedSeeding) {
-      if (!seedingOccurrences[team]) {
-        seedingOccurrences[team] = 1;
-      } else {
-        seedingOccurrences[team]++;
+      for (const team of combinedSeeding) {
+        if (!seedingOccurrences[team]) {
+          seedingOccurrences[team] = 1;
+        } else {
+          seedingOccurrences[team]++;
+        }
       }
+    } catch {
+      // Ignore
     }
   }
 
   return TEAMS.reduce<Record<string, number>>((acc, team) => {
     const occurrences = seedingOccurrences[team.shorthand] ?? 0;
-    acc[team.shorthand] = (occurrences / totalOutcomes) * 100;
+    acc[team.shorthand] = (occurrences / outcomesTested) * 100;
     return acc;
   }, {});
 }
