@@ -229,37 +229,37 @@ export const TEAMS: Team[] = Object.entries(TEAMS_OBJECTS).reduce(
 
 export const NFC_TEAMS = TEAMS.filter(
   (team) => team.conference === Conference.NFC
-).map(team => team.shorthand);
+).map((team) => team.shorthand);
 
 export const AFC_TEAMS = TEAMS.filter(
   (team) => team.conference === Conference.AFC
-).map(team => team.shorthand);
+).map((team) => team.shorthand);
 
 export const AFC_EAST_TEAMS = TEAMS.filter(
   (team) => team.division === Division.AFC_East
-).map(team => team.shorthand);
+).map((team) => team.shorthand);
 export const AFC_NORTH_TEAMS = TEAMS.filter(
   (team) => team.division === Division.AFC_North
-).map(team => team.shorthand);
+).map((team) => team.shorthand);
 export const AFC_SOUTH_TEAMS = TEAMS.filter(
   (team) => team.division === Division.AFC_South
-).map(team => team.shorthand);
+).map((team) => team.shorthand);
 export const AFC_WEST_TEAMS = TEAMS.filter(
   (team) => team.division === Division.AFC_West
-).map(team => team.shorthand);
+).map((team) => team.shorthand);
 
 export const NFC_EAST_TEAMS = TEAMS.filter(
   (team) => team.division === Division.NFC_East
-).map(team => team.shorthand);
+).map((team) => team.shorthand);
 export const NFC_NORTH_TEAMS = TEAMS.filter(
   (team) => team.division === Division.NFC_North
-).map(team => team.shorthand);
+).map((team) => team.shorthand);
 export const NFC_SOUTH_TEAMS = TEAMS.filter(
   (team) => team.division === Division.NFC_South
-).map(team => team.shorthand);
+).map((team) => team.shorthand);
 export const NFC_WEST_TEAMS = TEAMS.filter(
   (team) => team.division === Division.NFC_West
-).map(team => team.shorthand);
+).map((team) => team.shorthand);
 
 // Clean this up
 export const TEAM_MAP = TEAMS.reduce<Record<string, Team>>((acc, team) => {
@@ -990,3 +990,39 @@ WSH @TB NYG @CIN @ARI CLE @BAL CAR CHI @NYG PIT @PHI DAL TEN BYE @NO PHI ATL @DA
 `,
   PLAYED_GAMES_2024
 );
+
+// ESPN
+export const WEEK_8_2024_POWER_RANKING = [
+  "KC",
+  "DET",
+  "BUF",
+  "BAL",
+  "GB",
+  "MIN",
+  "HOU",
+  "PIT",
+  "WSH",
+  "TB",
+  "PHI",
+  "SEA",
+  "SF",
+  "CHI",
+  "DAL",
+  "ATL",
+  "DEN",
+  "LAC",
+  "CIN",
+  "IND",
+  "ARI",
+  "NO",
+  "LAR",
+  "NYJ",
+  "MIA",
+  "NYG",
+  "JAX",
+  "LV",
+  "TEN",
+  "CLE",
+  "NE",
+  "CAR",
+];

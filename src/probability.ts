@@ -1,4 +1,4 @@
-import { TEAMS } from "./data";
+import { TEAMS, WEEK_8_2024_POWER_RANKING } from "./data";
 import { getSeeding } from "./playoff";
 import { Schedule, TeamScheduleWeek, mergeSchedules } from "./schedule";
 import { permutationsWithReplacement as permutationsFn } from "combinatorial-generators";
@@ -21,13 +21,38 @@ function permutationsExtensive(n: number) {
   return permutationsFn([true, false], n);
 }
 
-function* permutationsRandomSample(n: number, samples: number) {
+function* permutationsRandomSample(
+  unplayedMatchups: UndecidedMatchup[],
+  samples: number,
+  weighted: boolean
+) {
   for (let i = 0; i < samples; i++) {
-    yield new Array(n).fill(0).map(() => Math.random() < 0.5);
+    yield unplayedMatchups.map((matchup) => {
+      const roll = Math.random();
+
+      if (weighted) {
+        const homeIndex = WEEK_8_2024_POWER_RANKING.indexOf(matchup.teamA);
+        const homeScore = WEEK_8_2024_POWER_RANKING.length - homeIndex;
+        const awayIndex = WEEK_8_2024_POWER_RANKING.indexOf(matchup.teamB);
+        const awayScore = WEEK_8_2024_POWER_RANKING.length - awayIndex;
+
+        if (homeIndex === -1 || awayIndex === -1) {
+          throw new Error(`${matchup.teamA} or ${matchup.teamB} not found`);
+        }
+
+        // TODO: Consider weighting this differently to be less skewed.
+        const total = homeScore + awayScore;
+        const winPercentage = homeScore / total;
+        return roll < winPercentage;
+      }
+
+      return roll < 0.5;
+    });
   }
 }
 
-function generatePermutations(n: number) {
+function generatePermutations(unplayedMatchups: UndecidedMatchup[]) {
+  const n = unplayedMatchups.length;
   const outcomes = 2 ** n;
   const samples = 100_000;
 
@@ -47,7 +72,7 @@ function generatePermutations(n: number) {
   );
   return {
     length: samples,
-    permutations: permutationsRandomSample(n, samples),
+    permutations: permutationsRandomSample(unplayedMatchups, samples, true),
   };
 }
 
@@ -97,9 +122,8 @@ export function calculatePlayoffProbability(
     return acc.concat(matchups);
   }, []);
 
-  const { permutations, length: outcomesTested } = generatePermutations(
-    unplayedMatchups.length
-  );
+  const { permutations, length: outcomesTested } =
+    generatePermutations(unplayedMatchups);
 
   const seedingOccurrences: Record<string, number> = {};
 
