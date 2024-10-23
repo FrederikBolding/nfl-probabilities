@@ -14,6 +14,6 @@ Object.entries(SCHEDULE).forEach(([team, weeks]) => {
   console.log(
     team,
     `${wins}-${losses}-${draws}`,
-    `${playoffProbabilities[team]}%`
+    `${playoffProbabilities[team]!.toFixed(2)}%`
   );
 });
