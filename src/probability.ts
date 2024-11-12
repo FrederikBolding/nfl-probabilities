@@ -127,6 +127,7 @@ export function calculatePlayoffProbability(
 
   const seedingOccurrences: Record<string, number> = {};
 
+  let simulationFailures = 0;
   for (const permutation of permutations) {
     const possibleSchedule = unplayedMatchups.reduce<Schedule>(
       (acc, matchup, index) => {
@@ -168,12 +169,15 @@ export function calculatePlayoffProbability(
       }
     } catch {
       // Ignore
+      simulationFailures++;
     }
   }
 
+  const simulations = outcomesTested - simulationFailures;
+
   return TEAMS.reduce<Record<string, number>>((acc, team) => {
     const occurrences = seedingOccurrences[team.shorthand] ?? 0;
-    acc[team.shorthand] = (occurrences / outcomesTested) * 100;
+    acc[team.shorthand] = (occurrences / simulations) * 100;
     return acc;
   }, {});
 }
