@@ -1,4 +1,4 @@
-import { TEAMS, WEEK_8_2024_POWER_RANKING } from "./data";
+import { TEAMS, WEEK_11_2024_POWER_RANKING } from "./data";
 import { getSeeding } from "./playoff";
 import { Schedule, TeamScheduleWeek, mergeSchedules } from "./schedule";
 import { permutationsWithReplacement as permutationsFn } from "combinatorial-generators";
@@ -31,10 +31,10 @@ function* permutationsRandomSample(
       const roll = Math.random();
 
       if (weighted) {
-        const homeIndex = WEEK_8_2024_POWER_RANKING.indexOf(matchup.teamA);
-        const homeScore = WEEK_8_2024_POWER_RANKING.length - homeIndex;
-        const awayIndex = WEEK_8_2024_POWER_RANKING.indexOf(matchup.teamB);
-        const awayScore = WEEK_8_2024_POWER_RANKING.length - awayIndex;
+        const homeIndex = WEEK_11_2024_POWER_RANKING.indexOf(matchup.teamA);
+        const homeScore = WEEK_11_2024_POWER_RANKING.length - homeIndex;
+        const awayIndex = WEEK_11_2024_POWER_RANKING.indexOf(matchup.teamB);
+        const awayScore = WEEK_11_2024_POWER_RANKING.length - awayIndex;
 
         if (homeIndex === -1 || awayIndex === -1) {
           throw new Error(`${matchup.teamA} or ${matchup.teamB} not found`);
