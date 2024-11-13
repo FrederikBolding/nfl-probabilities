@@ -227,13 +227,17 @@ export const TEAMS: Team[] = Object.entries(TEAMS_OBJECTS).reduce(
   []
 );
 
-export const NFC_TEAMS = TEAMS.filter(
+export const NFC_TEAMS_OBJECTS = TEAMS.filter(
   (team) => team.conference === Conference.NFC
-).map((team) => team.shorthand);
+);
 
-export const AFC_TEAMS = TEAMS.filter(
+export const AFC_TEAMS_OBJECTS = TEAMS.filter(
   (team) => team.conference === Conference.AFC
-).map((team) => team.shorthand);
+);
+
+export const NFC_TEAMS = NFC_TEAMS_OBJECTS.map((team) => team.shorthand);
+
+export const AFC_TEAMS = AFC_TEAMS_OBJECTS.map((team) => team.shorthand);
 
 export const AFC_EAST_TEAMS = TEAMS.filter(
   (team) => team.division === Division.AFC_East
@@ -260,6 +264,18 @@ export const NFC_SOUTH_TEAMS = TEAMS.filter(
 export const NFC_WEST_TEAMS = TEAMS.filter(
   (team) => team.division === Division.NFC_West
 ).map((team) => team.shorthand);
+
+export const DIVISION_MAP = {
+  [Division.AFC_East]: AFC_EAST_TEAMS,
+  [Division.AFC_North]: AFC_NORTH_TEAMS,
+  [Division.AFC_South]: AFC_SOUTH_TEAMS,
+  [Division.AFC_West]: AFC_WEST_TEAMS,
+
+  [Division.NFC_East]: NFC_EAST_TEAMS,
+  [Division.NFC_North]: NFC_NORTH_TEAMS,
+  [Division.NFC_South]: NFC_SOUTH_TEAMS,
+  [Division.NFC_West]: NFC_WEST_TEAMS,
+};
 
 // Clean this up
 export const TEAM_MAP = TEAMS.reduce<Record<string, Team>>((acc, team) => {

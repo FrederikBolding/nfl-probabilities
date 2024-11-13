@@ -1,20 +1,19 @@
 import { TEAMS, WEEK_11_2024_POWER_RANKING } from "./data";
 import { getSeeding } from "./playoff";
-import { Schedule, TeamScheduleWeek, mergeSchedules } from "./schedule";
+import {
+  Schedule,
+  ScheduleWithoutByes,
+  TeamScheduleWeek,
+  mergeSchedules,
+} from "./schedule";
 import { permutationsWithReplacement as permutationsFn } from "combinatorial-generators";
+import { filterMap } from "./utils";
 
 interface UndecidedMatchup {
   week: number;
   teamA: string;
   teamB: string;
   winner: null;
-}
-
-interface DecidedMatchup {
-  week: number;
-  teamA: string;
-  teamB: string;
-  winner: string;
 }
 
 function permutationsExtensive(n: number) {
@@ -77,16 +76,14 @@ function generatePermutations(unplayedMatchups: UndecidedMatchup[]) {
 }
 
 export function calculatePlayoffProbability(
-  schedule: Schedule
+  schedule: ScheduleWithoutByes
 ): Record<string, number> {
-  const decidedSchedule = Object.entries(schedule).reduce<Schedule>(
+  const decidedSchedule = Object.entries(schedule).reduce<ScheduleWithoutByes>(
     (acc, teamSchedule) => {
       const teamName = teamSchedule[0];
       const games = teamSchedule[1];
-      // Only include bye or decided games
-      acc[teamName] = games.filter(
-        (game) => game === null || game.won !== null
-      );
+      // Only include decided games
+      acc[teamName] = games.filter((game) => game.won !== null);
       return acc;
     },
     {}
@@ -112,13 +109,16 @@ export function calculatePlayoffProbability(
     const teamA = teamSchedule[0];
     const games = teamSchedule[1];
     // Only add home games
-    const homeGames = games.filter((game) => game?.away === false);
-    const matchups = homeGames.map((game) => ({
-      week: game!.week,
-      teamA,
-      teamB: game!.opponent,
-      winner: null,
-    }));
+    const matchups = filterMap(
+      games,
+      (game) => game?.away === false,
+      (game) => ({
+        week: game!.week,
+        teamA,
+        teamB: game!.opponent,
+        winner: null,
+      })
+    );
     return acc.concat(matchups);
   }, []);
 
@@ -129,7 +129,7 @@ export function calculatePlayoffProbability(
 
   let simulationFailures = 0;
   for (const permutation of permutations) {
-    const possibleSchedule = unplayedMatchups.reduce<Schedule>(
+    const possibleSchedule = unplayedMatchups.reduce<ScheduleWithoutByes>(
       (acc, matchup, index) => {
         if (!(matchup.teamA in acc)) {
           acc[matchup.teamA] = [];

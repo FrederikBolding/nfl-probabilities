@@ -1,14 +1,13 @@
 import {
   AFC_DIVISIONS,
-  AFC_TEAMS,
+  AFC_TEAMS_OBJECTS,
   Conference,
   NFC_DIVISIONS,
-  NFC_TEAMS,
-  TEAM_MAP,
+  NFC_TEAMS_OBJECTS,
 } from "./data";
 import { TeamRecord, TeamRecordData, getMultipleRecords } from "./records";
-import { Schedule } from "./schedule";
-import { findMinIndex, separate, setDiff } from "./utils";
+import { ScheduleWithoutByes } from "./schedule";
+import { filterMap, findMinIndex, findMinIndexMap, separate } from "./utils";
 
 function compareWL(a: TeamRecordData, b: TeamRecordData) {
   return b.wl - a.wl;
@@ -16,63 +15,69 @@ function compareWL(a: TeamRecordData, b: TeamRecordData) {
 
 function findDivisionTiebreakEliminationIndex(records: TeamRecord[]): number {
   // First, look at H2H.
-  const h2h = records.map(
+  const h2hIndex = findMinIndexMap(
+    records,
     (record) =>
       record.getH2H(
-        records
-          .filter((opponent) => opponent.shorthand !== record.shorthand)
-          .map((opponent) => opponent.shorthand)
+        filterMap(
+          records,
+          (opponent) => opponent.shorthand !== record.shorthand,
+          (opponent) => opponent.shorthand
+        )
       ).wl
   );
-  const h2hIndex = findMinIndex(h2h);
   if (h2hIndex !== -1) {
     return h2hIndex;
   }
 
   // Next, look at division W/L
-  const divisionIndex = findMinIndex(
-    records.map((record) => record.divisionRecord.wl)
+  const divisionIndex = findMinIndexMap(
+    records,
+    (record) => record.divisionRecord.wl
   );
   if (divisionIndex !== -1) {
     return divisionIndex;
   }
 
   // Next, look at common games
-  const commonRecords = records
-    .map((record) =>
-      record.getCommonRecord(
-        records
-          .filter((opponent) => opponent.shorthand !== record.shorthand)
-          .map((opponent) => opponent.shorthand)
+  const commonRecords = records.map((record) =>
+    record.getCommonRecord(
+      filterMap(
+        records,
+        (opponent) => opponent.shorthand !== record.shorthand,
+        (opponent) => opponent.shorthand
       )
     )
-    .filter(Boolean);
+  );
   const commonRecordIndex = findMinIndex(
-    commonRecords.map((record) => record!.wl)
+    filterMap(commonRecords, Boolean, (record) => record!.wl)
   );
   if (commonRecordIndex !== -1) {
     return commonRecordIndex;
   }
 
   // Next, look at conference record
-  const conferenceIndex = findMinIndex(
-    records.map((record) => record.conferenceRecord.wl)
+  const conferenceIndex = findMinIndexMap(
+    records,
+    (record) => record.conferenceRecord.wl
   );
   if (conferenceIndex !== -1) {
     return conferenceIndex;
   }
 
   // Next, look at strength of victory
-  const strengthOfVictoryIndex = findMinIndex(
-    records.map((record) => record.strengthOfVictory.wl)
+  const strengthOfVictoryIndex = findMinIndexMap(
+    records,
+    (record) => record.strengthOfVictory.wl
   );
   if (strengthOfVictoryIndex !== -1) {
     return strengthOfVictoryIndex;
   }
 
   // Next, look at strength of schedule
-  const strengthOfScheduleIndex = findMinIndex(
-    records.map((record) => record.strengthOfSchedule.wl)
+  const strengthOfScheduleIndex = findMinIndexMap(
+    records,
+    (record) => record.strengthOfSchedule.wl
   );
   if (strengthOfScheduleIndex !== -1) {
     return strengthOfScheduleIndex;
@@ -87,56 +92,61 @@ function findConferenceTiebreakEliminationIndex(records: TeamRecord[]) {
   // First, look at H2H.
   // TODO: Handle sweep rule for three+ way tie.
   if (records.length === 2) {
-    const h2h = records.map(
+    const h2hIndex = findMinIndexMap(
+      records,
       (record) =>
         record.getH2H(
-          records
-            .filter((opponent) => opponent.shorthand !== record.shorthand)
-            .map((opponent) => opponent.shorthand)
+          filterMap(
+            records,
+            (opponent) => opponent.shorthand !== record.shorthand,
+            (opponent) => opponent.shorthand
+          )
         ).wl
     );
-    const h2hIndex = findMinIndex(h2h);
     if (h2hIndex !== -1) {
       return h2hIndex;
     }
   }
 
   // Next, look at conference record
-  const conferenceIndex = findMinIndex(
-    records.map((record) => record.conferenceRecord.wl)
+  const conferenceIndex = findMinIndexMap(
+    records,
+    (record) => record.conferenceRecord.wl
   );
   if (conferenceIndex !== -1) {
     return conferenceIndex;
   }
 
   // Next, look at common games
-  const commonRecords = records
-    .map((record) =>
-      record.getCommonRecord(
-        records
-          .filter((opponent) => opponent.shorthand !== record.shorthand)
-          .map((opponent) => opponent.shorthand)
+  const commonRecords = records.map((record) =>
+    record.getCommonRecord(
+      filterMap(
+        records,
+        (opponent) => opponent.shorthand !== record.shorthand,
+        (opponent) => opponent.shorthand
       )
     )
-    .filter(Boolean);
+  );
   const commonRecordIndex = findMinIndex(
-    commonRecords.map((record) => record!.wl)
+    filterMap(commonRecords, Boolean, (record) => record!.wl)
   );
   if (commonRecordIndex !== -1) {
     return commonRecordIndex;
   }
 
   // Next, look at strength of victory
-  const strengthOfVictoryIndex = findMinIndex(
-    records.map((record) => record.strengthOfVictory.wl)
+  const strengthOfVictoryIndex = findMinIndexMap(
+    records,
+    (record) => record.strengthOfVictory.wl
   );
   if (strengthOfVictoryIndex !== -1) {
     return strengthOfVictoryIndex;
   }
 
   // Next, look at strength of schedule
-  const strengthOfScheduleIndex = findMinIndex(
-    records.map((record) => record.strengthOfSchedule.wl)
+  const strengthOfScheduleIndex = findMinIndexMap(
+    records,
+    (record) => record.strengthOfSchedule.wl
   );
   if (strengthOfScheduleIndex !== -1) {
     return strengthOfScheduleIndex;
@@ -233,9 +243,7 @@ function breakTies(
 function sortRecords(records: TeamRecord[], isDivision: boolean) {
   const initialSort = records.sort((a, b) => compareWL(a.record, b.record));
   const grouped = groupRecordsByWL(initialSort);
-  const tiesBroken = grouped
-    .map((group) => breakTies(group, isDivision))
-    .flat();
+  const tiesBroken = grouped.flatMap((group) => breakTies(group, isDivision));
 
   return tiesBroken;
 }
@@ -258,43 +266,41 @@ function getDivisionWinners(records: TeamRecord[], conference: Conference) {
       return grouped[0]![0]!;
     }
 
-    const tiesBroken = grouped.map((group) => breakTies(group, true)).flat();
+    const tiesBroken = grouped.flatMap((group) => breakTies(group, true));
 
     return tiesBroken[0]!;
   });
 }
 
-export function getSeeding(schedule: Schedule) {
+export function getSeeding(schedule: ScheduleWithoutByes) {
   const nfc = getConferenceSeeding(schedule, Conference.NFC);
   const afc = getConferenceSeeding(schedule, Conference.AFC);
   return { nfc, afc };
 }
 
-function getConferenceSeeding(schedule: Schedule, conference: Conference) {
-  const conferenceTeams = conference === Conference.AFC ? AFC_TEAMS : NFC_TEAMS;
+function getConferenceSeeding(
+  schedule: ScheduleWithoutByes,
+  conference: Conference
+) {
+  const conferenceTeams =
+    conference === Conference.AFC ? AFC_TEAMS_OBJECTS : NFC_TEAMS_OBJECTS;
 
-  const records = getMultipleRecords(
-    schedule,
-    conferenceTeams.map((team) => TEAM_MAP[team]!)
-  );
+  const records = getMultipleRecords(schedule, conferenceTeams);
 
   const divisionWinners = sortRecords(
     getDivisionWinners(records, conference),
     false
-  );
+  ).map((team) => team.shorthand);
 
-  const remainingTeams = setDiff(
-    conferenceTeams,
-    divisionWinners.map((team) => team.shorthand)
-  );
-
-  const remainingTeamRecords = records.filter((record) =>
-    remainingTeams.includes(record.shorthand)
+  const remainingTeamRecords = records.filter(
+    (record) => !divisionWinners.includes(record.shorthand)
   );
 
   const remainingTeamsSorted = sortRecords(remainingTeamRecords, false);
 
-  const wildCards = remainingTeamsSorted.slice(0, 3);
+  const wildCards = remainingTeamsSorted
+    .slice(0, 3)
+    .map((team) => team.shorthand);
 
-  return divisionWinners.concat(wildCards).map((team) => team.shorthand);
+  return divisionWinners.concat(wildCards);
 }

@@ -1,20 +1,14 @@
 import {
-  AFC_EAST_TEAMS,
-  AFC_NORTH_TEAMS,
-  AFC_SOUTH_TEAMS,
   AFC_TEAMS,
-  AFC_WEST_TEAMS,
   Conference,
+  DIVISION_MAP,
   Division,
-  NFC_EAST_TEAMS,
-  NFC_NORTH_TEAMS,
-  NFC_SOUTH_TEAMS,
   NFC_TEAMS,
-  NFC_WEST_TEAMS,
   TEAM_MAP,
   Team,
 } from "./data";
-import { Schedule, TeamScheduleWeek } from "./schedule";
+import { ScheduleWithoutByes, TeamScheduleWeek } from "./schedule";
+import { filterMap } from "./utils";
 
 export interface TeamRecordData {
   wins: number;
@@ -35,19 +29,19 @@ export interface TeamRecord {
   strengthOfSchedule: TeamRecordData;
 }
 
-function filterByeWeeks(
-  weeks: (TeamScheduleWeek | null)[]
-): TeamScheduleWeek[] {
-  return weeks.filter((week) => week !== null) as TeamScheduleWeek[];
-}
-
-function getRecord(weeks: TeamScheduleWeek[]) {
+function getRecord(
+  weeks: TeamScheduleWeek[],
+  filterFn?: (value: TeamScheduleWeek) => boolean
+) {
   const record = weeks.reduce<{
     wins: number;
     losses: number;
     draws: number;
   }>(
     (acc, week) => {
+      if (filterFn && !filterFn(week)) {
+        return acc;
+      }
       if (week.won === true) {
         acc.wins++;
       } else if (week.won === false) {
@@ -82,35 +76,11 @@ function calculateWL({
 }
 
 function getRecordAgainst(weeks: TeamScheduleWeek[], opposingTeams: string[]) {
-  return getRecord(
-    weeks.filter((week) => opposingTeams.includes(week.opponent))
-  );
-}
-
-function getDivisionTeams(division: Division) {
-  switch (division) {
-    default:
-    case Division.AFC_North:
-      return AFC_NORTH_TEAMS;
-    case Division.AFC_South:
-      return AFC_SOUTH_TEAMS;
-    case Division.AFC_East:
-      return AFC_EAST_TEAMS;
-    case Division.AFC_West:
-      return AFC_WEST_TEAMS;
-    case Division.NFC_North:
-      return NFC_NORTH_TEAMS;
-    case Division.NFC_South:
-      return NFC_SOUTH_TEAMS;
-    case Division.NFC_East:
-      return NFC_EAST_TEAMS;
-    case Division.NFC_West:
-      return NFC_WEST_TEAMS;
-  }
+  return getRecord(weeks, (week) => opposingTeams.includes(week.opponent));
 }
 
 function getDivisionRecord(weeks: TeamScheduleWeek[], division: Division) {
-  const divisionTeams = getDivisionTeams(division);
+  const divisionTeams = DIVISION_MAP[division];
   return getRecordAgainst(weeks, divisionTeams);
 }
 
@@ -123,27 +93,24 @@ function getConferenceRecord(
 }
 
 function getCommonRecord(
-  schedule: Schedule,
+  schedule: ScheduleWithoutByes,
   teamShorthand: string,
   teamShorthands: string[]
 ) {
-  const ownSchedule = filterByeWeeks(schedule[teamShorthand]!);
-  const teams = teamShorthands.map((shorthand) => TEAM_MAP[shorthand]!);
-
-  const schedules = teams.map((team) =>
-    filterByeWeeks(schedule[team.shorthand]!)
-  );
-
-  const ownOpponents = ownSchedule.map((week) => week.opponent);
+  const ownSchedule = schedule[teamShorthand]!;
+  const schedules = teamShorthands.map((shorthand) => schedule[shorthand]!);
 
   const allOpponents = schedules.map((weeks) =>
     weeks.map((week) => week.opponent)
   );
 
-  const commonOpponents = ownOpponents.filter((potentialCommonOpponent) =>
-    allOpponents.every((opponents) =>
-      opponents.includes(potentialCommonOpponent)
-    )
+  const commonOpponents = filterMap(
+    ownSchedule,
+    (potentialCommonMatchup) =>
+      allOpponents.every((opponents) =>
+        opponents.includes(potentialCommonMatchup.opponent)
+      ),
+    (week) => week.opponent
   );
 
   if (commonOpponents.length >= 4) {
@@ -154,18 +121,18 @@ function getCommonRecord(
 }
 
 function getStrengthOfSchedule(
-  schedule: Schedule,
+  schedule: ScheduleWithoutByes,
   teamShorthand: string,
   victoryOnly: boolean
 ) {
-  const ownSchedule = filterByeWeeks(schedule[teamShorthand]!);
-  const opponents = ownSchedule
-    .filter((opponent) => (victoryOnly && opponent.won) || !victoryOnly)
-    .map((match) => match.opponent);
-
-  const records = opponents.map((opponent) =>
-    getRecord(filterByeWeeks(schedule[opponent]!))
+  const ownSchedule = schedule[teamShorthand]!;
+  const opponents = filterMap(
+    ownSchedule,
+    (opponent) => (victoryOnly && opponent.won) || !victoryOnly,
+    (match) => match.opponent
   );
+
+  const records = opponents.map((opponent) => getRecord(schedule[opponent]!));
 
   const totalRecord = records.reduce<{
     wins: number;
@@ -189,12 +156,12 @@ function getStrengthOfSchedule(
 }
 
 export function getMultipleRecords(
-  schedule: Schedule,
+  schedule: ScheduleWithoutByes,
   teams: Team[]
 ): TeamRecord[] {
   return teams.map((team) => {
     // Filter out bye weeks
-    const weeks = filterByeWeeks(schedule[team.shorthand]!);
+    const weeks = schedule[team.shorthand]!;
     const h2h = {} as Record<string, TeamRecordData>;
     const commonRecord = {} as Record<string, TeamRecordData | undefined>;
     return {
