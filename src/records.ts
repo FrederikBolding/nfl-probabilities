@@ -4,11 +4,9 @@ import {
   DIVISION_MAP,
   Division,
   NFC_TEAMS,
-  TEAM_MAP,
   Team,
 } from "./data";
 import { ScheduleWithoutByes, TeamScheduleWeek } from "./schedule";
-import { filterMap } from "./utils";
 
 export interface TeamRecordData {
   wins: number;
@@ -98,19 +96,17 @@ function getCommonRecord(
   teamShorthands: string[]
 ) {
   const ownSchedule = schedule[teamShorthand]!;
-  const schedules = teamShorthands.map((shorthand) => schedule[shorthand]!);
+  const opponents = ownSchedule.map((week) => week.opponent);
 
-  const allOpponents = schedules.map((weeks) =>
-    weeks.map((week) => week.opponent)
-  );
-
-  const commonOpponents = filterMap(
-    ownSchedule,
-    (potentialCommonMatchup) =>
-      allOpponents.every((opponents) =>
-        opponents.includes(potentialCommonMatchup.opponent)
-      ),
-    (week) => week.opponent
+  const commonOpponents = teamShorthands.reduce<string[]>(
+    (accumulator, scheduleShorthand) => {
+      return accumulator.filter((initialOpponent) =>
+        schedule[scheduleShorthand]!.some(
+          (week) => week.opponent === initialOpponent
+        )
+      );
+    },
+    opponents
   );
 
   if (commonOpponents.length >= 4) {
@@ -126,23 +122,19 @@ function getStrengthOfSchedule(
   victoryOnly: boolean
 ) {
   const ownSchedule = schedule[teamShorthand]!;
-  const opponents = filterMap(
-    ownSchedule,
-    (opponent) => (victoryOnly && opponent.won) || !victoryOnly,
-    (match) => match.opponent
-  );
 
-  const records = opponents.map((opponent) => getRecord(schedule[opponent]!));
-
-  const totalRecord = records.reduce<{
+  const totalRecord = ownSchedule.reduce<{
     wins: number;
     losses: number;
     draws: number;
   }>(
-    (accumulator, record) => {
-      accumulator.wins += record.wins;
-      accumulator.losses += record.losses;
-      accumulator.draws += record.draws;
+    (accumulator, match) => {
+      if (!victoryOnly || (victoryOnly && match.won)) {
+        const record = getRecord(schedule[match.opponent]!);
+        accumulator.wins += record.wins;
+        accumulator.losses += record.losses;
+        accumulator.draws += record.draws;
+      }
       return accumulator;
     },
     {
