@@ -15,7 +15,7 @@ function drawRow(team: Team) {
   const losses = weeks.filter((week) => week?.won === false).length;
   const draws = 0; // TODO
   return [
-    team.name,
+    team.name.split(" ").at(-1),
     `${wins}-${losses}-${draws}`,
     `${playoffProbabilities[team.shorthand]!.toFixed(2)}%`,
   ];
@@ -33,10 +33,10 @@ function drawTable(afc: Team[], nfc: Team[]) {
   table.push([
     colors.red("Team"),
     colors.red("Record"),
-    colors.red("Playoff Probability"),
+    colors.red("Playoff %"),
     colors.blue("Team"),
     colors.blue("Record"),
-    colors.blue("Playoff Probability"),
+    colors.blue("Playoff %"),
   ]);
 
   afc.forEach((team, index) => {
