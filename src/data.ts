@@ -1,3 +1,4 @@
+import { calculatePowerRanking } from "./elo";
 import { parseSchedule } from "./schedule";
 
 export enum Conference {
@@ -1042,3 +1043,5 @@ export const POWER_RANKING_2024 = [
   "LV",
   "NYG",
 ];
+
+export const ELO_POWER_RANKING_2024 = calculatePowerRanking(SCHEDULE_2024);
