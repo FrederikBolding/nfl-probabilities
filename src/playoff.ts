@@ -4,6 +4,9 @@ import {
   Conference,
   NFC_DIVISIONS,
   NFC_TEAMS_OBJECTS,
+  REGULAR_SEASON_GAMES,
+  TEAM_MAP,
+  WILDCARD_SPOTS,
 } from "./data";
 import { TeamRecord, TeamRecordData, getMultipleRecords } from "./records";
 import { ScheduleWithoutByes } from "./schedule";
@@ -272,15 +275,121 @@ function getDivisionWinners(records: TeamRecord[], conference: Conference) {
   });
 }
 
-export function getSeeding(schedule: ScheduleWithoutByes) {
-  const nfc = getConferenceSeeding(schedule, Conference.NFC);
-  const afc = getConferenceSeeding(schedule, Conference.AFC);
+export function getSeeding(
+  schedule: ScheduleWithoutByes,
+  includeEliminations = false
+) {
+  const nfc = getConferenceSeeding(
+    schedule,
+    Conference.NFC,
+    includeEliminations
+  );
+  const afc = getConferenceSeeding(
+    schedule,
+    Conference.AFC,
+    includeEliminations
+  );
   return { nfc, afc };
+}
+
+function canTie(
+  recordA: TeamRecord,
+  recordB: TeamRecord,
+  remainingGames: number
+) {
+  // Team A can tie Team B in W/L if they win the remaining N games
+  return (
+    Math.abs(recordA.record.adjustedWins - recordB.record.adjustedWins) <=
+    remainingGames
+  );
+}
+
+function isPlayoffsClinched(
+  records: TeamRecord[],
+  divisionWinners: string[],
+  wildCards: string[],
+  shorthand: string
+) {
+  const team = TEAM_MAP[shorthand]!;
+  const teamRecord = records.find((record) => record.shorthand === shorthand)!;
+
+  const allTeams = records.filter((record) => record.shorthand !== shorthand);
+
+  const division = team.division;
+  const divisionTeams = allTeams.filter(
+    (record) => record.division === division
+  );
+
+  const isCurrentDivisionWinner = divisionWinners.includes(shorthand);
+
+  const isGuaranteedDivisionWinner =
+    isCurrentDivisionWinner &&
+    !divisionTeams.some((divisionTeamRecord) =>
+      canTie(
+        divisionTeamRecord,
+        teamRecord,
+        REGULAR_SEASON_GAMES - divisionTeamRecord.record.totalGames
+      )
+    );
+
+  const wildCardTies = allTeams.filter((wildCardTeamRecord) =>
+    canTie(
+      wildCardTeamRecord,
+      teamRecord,
+      REGULAR_SEASON_GAMES - wildCardTeamRecord.record.totalGames
+    )
+  );
+
+  const isGuaranteedWildcard =
+    (isCurrentDivisionWinner || wildCards.includes(shorthand)) &&
+    wildCardTies.length < WILDCARD_SPOTS + 4;
+
+  // A team is considered clinched if it is a guaranteed division winner or a guaranteed wild card (in top 7 and no one can tie)
+  return isGuaranteedDivisionWinner || isGuaranteedWildcard;
+}
+
+function isEliminated(
+  records: TeamRecord[],
+  divisionWinners: string[],
+  wildCards: string[],
+  shorthand: string
+) {
+  const team = TEAM_MAP[shorthand]!;
+  const teamRecord = records.find((record) => record.shorthand === shorthand)!;
+
+  const remainingGames = REGULAR_SEASON_GAMES - teamRecord.record.totalGames;
+
+  const division = team.division;
+  const divisionWinner = divisionWinners.find(
+    (divisionWinner) => TEAM_MAP[divisionWinner]!.division === division
+  )!;
+
+  const divisionWinnerRecord = records.find(
+    (record) => record.shorthand === divisionWinner
+  )!;
+
+  const canTieDivisionWinner = canTie(
+    teamRecord,
+    divisionWinnerRecord,
+    remainingGames
+  );
+
+  const canTieWildCard = wildCards.some((wildCard) => {
+    const wildCardRecord = records.find(
+      (record) => record.shorthand === wildCard
+    )!;
+
+    return canTie(teamRecord, wildCardRecord, remainingGames);
+  });
+
+  // A team is considered eliminated if it cannot at least tie for the division or tie for a wildcard spot
+  return !canTieDivisionWinner && !canTieWildCard;
 }
 
 function getConferenceSeeding(
   schedule: ScheduleWithoutByes,
-  conference: Conference
+  conference: Conference,
+  includeEliminations: boolean
 ) {
   const conferenceTeams =
     conference === Conference.AFC ? AFC_TEAMS_OBJECTS : NFC_TEAMS_OBJECTS;
@@ -299,8 +408,35 @@ function getConferenceSeeding(
   const remainingTeamsSorted = sortRecords(remainingTeamRecords, false);
 
   const wildCards = remainingTeamsSorted
-    .slice(0, 3)
+    .slice(0, WILDCARD_SPOTS)
     .map((team) => team.shorthand);
 
-  return divisionWinners.concat(wildCards);
+  const seeding = divisionWinners.concat(wildCards);
+
+  const eliminatedTeams = includeEliminations
+    ? conferenceTeams.reduce<string[]>((accumulator, team) => {
+        if (isEliminated(records, divisionWinners, wildCards, team.shorthand)) {
+          accumulator.push(team.shorthand);
+        }
+        return accumulator;
+      }, [])
+    : [];
+
+  const clinchedTeams = includeEliminations
+    ? conferenceTeams.reduce<string[]>((accumulator, team) => {
+        if (
+          isPlayoffsClinched(
+            records,
+            divisionWinners,
+            wildCards,
+            team.shorthand
+          )
+        ) {
+          accumulator.push(team.shorthand);
+        }
+        return accumulator;
+      }, [])
+    : [];
+
+  return { seeding, eliminatedTeams, clinchedTeams };
 }

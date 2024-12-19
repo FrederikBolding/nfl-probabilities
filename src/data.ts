@@ -1,6 +1,9 @@
 import { calculatePowerRanking } from "./elo";
 import { parseSchedule } from "./schedule";
 
+export const REGULAR_SEASON_GAMES = 17; // Excluding bye-weeks
+export const WILDCARD_SPOTS = 3;
+
 export enum Conference {
   AFC = "AFC",
   NFC = "NFC",

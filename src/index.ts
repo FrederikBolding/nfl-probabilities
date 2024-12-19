@@ -5,17 +5,20 @@ import Table from "cli-table3";
 import colors from "@colors/colors/safe";
 
 console.log("Calculating current seeding...");
-const seeding = getSeeding(SCHEDULE);
+const seeding = getSeeding(SCHEDULE, true);
 
 const playoffProbabilities = calculatePlayoffProbability(SCHEDULE);
 
-function drawRow(team: Team) {
+function drawRow(team: Team, seedingData: any) {
   const weeks = SCHEDULE[team.shorthand]!;
   const wins = weeks.filter((week) => week?.won === true).length;
   const losses = weeks.filter((week) => week?.won === false).length;
   const draws = 0; // TODO
+  const isEliminated = seedingData.eliminatedTeams.includes(team.shorthand);
+  const isClinched = seedingData.clinchedTeams.includes(team.shorthand);
+  const tag = isClinched ? "(P)" : isEliminated ? "(E)" : "";
   return [
-    team.name.split(" ").at(-1),
+    `${team.name.split(" ").at(-1)} ${tag}`,
     `${wins}-${losses}-${draws}`,
     `${playoffProbabilities[team.shorthand]!.toFixed(2)}%`,
   ];
@@ -40,7 +43,10 @@ function drawTable(afc: Team[], nfc: Team[]) {
   ]);
 
   afc.forEach((team, index) => {
-    table.push([...drawRow(team), ...drawRow(nfc[index]!)]);
+    table.push([
+      ...drawRow(team, seeding.afc),
+      ...drawRow(nfc[index]!, seeding.nfc),
+    ]);
   });
 
   console.log(table.toString());
@@ -49,8 +55,8 @@ function drawTable(afc: Team[], nfc: Team[]) {
 const afc = Object.values(TEAM_MAP)
   .filter((team) => team.conference === Conference.AFC)
   .sort((a, b) => {
-    const aIndex = seeding.afc.indexOf(a.shorthand);
-    const bIndex = seeding.afc.indexOf(b.shorthand);
+    const aIndex = seeding.afc.seeding.indexOf(a.shorthand);
+    const bIndex = seeding.afc.seeding.indexOf(b.shorthand);
     if (aIndex === -1 && bIndex === -1) {
       return (
         playoffProbabilities[b.shorthand]! - playoffProbabilities[a.shorthand]!
@@ -66,8 +72,8 @@ const afc = Object.values(TEAM_MAP)
 const nfc = Object.values(TEAM_MAP)
   .filter((team) => team.conference === Conference.NFC)
   .sort((a, b) => {
-    const aIndex = seeding.nfc.indexOf(a.shorthand);
-    const bIndex = seeding.nfc.indexOf(b.shorthand);
+    const aIndex = seeding.nfc.seeding.indexOf(a.shorthand);
+    const bIndex = seeding.nfc.seeding.indexOf(b.shorthand);
     if (aIndex === -1 && bIndex === -1) {
       return (
         playoffProbabilities[b.shorthand]! - playoffProbabilities[a.shorthand]!

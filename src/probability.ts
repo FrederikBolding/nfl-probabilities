@@ -158,7 +158,7 @@ export function calculatePlayoffProbability(
     try {
       const mergedSchedule = mergeSchedules(decidedSchedule, possibleSchedule);
       const { nfc, afc } = getSeeding(mergedSchedule);
-      const combinedSeeding = nfc.concat(afc);
+      const combinedSeeding = nfc.seeding.concat(afc.seeding);
 
       for (const team of combinedSeeding) {
         if (!seedingOccurrences[team]) {

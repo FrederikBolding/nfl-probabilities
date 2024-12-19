@@ -13,6 +13,9 @@ export interface TeamRecordData {
   losses: number;
   draws: number;
   wl: number;
+  adjustedWins: number;
+  adjustedLosses: number;
+  totalGames: number;
 }
 
 export interface TeamRecord {
@@ -70,7 +73,7 @@ function calculateWL({
   const adjustedLosses = losses + 0.5 * draws;
   const totalGames = adjustedWins + adjustedLosses;
   const wl = totalGames > 0 ? adjustedWins / totalGames : 0;
-  return { wins, losses, draws, wl };
+  return { wins, losses, draws, wl, adjustedWins, adjustedLosses, totalGames };
 }
 
 function getRecordAgainst(weeks: TeamScheduleWeek[], opposingTeams: string[]) {
