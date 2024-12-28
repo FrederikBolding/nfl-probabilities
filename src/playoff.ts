@@ -298,10 +298,12 @@ function canTie(
   remainingGames: number
 ) {
   // Team A can tie Team B in W/L if they win the remaining N games
-  return (
-    Math.abs(recordA.record.adjustedWins - recordB.record.adjustedWins) <=
-    remainingGames
-  );
+  // Also return true if Team A outright has beat Team B
+  const winDiff = recordA.record.adjustedWins - recordB.record.adjustedWins;
+  if (winDiff > remainingGames) {
+    return true;
+  }
+  return Math.abs(winDiff) <= remainingGames;
 }
 
 function isPlayoffsClinched(
