@@ -1,4 +1,5 @@
-import { Conference, SCHEDULE_2024 as SCHEDULE, TEAM_MAP, Team } from "./data";
+import { SCHEDULE_2024 as SCHEDULE } from './data/2024';
+import { Conference, TEAM_MAP, Team } from "./data";
 import { getSeeding } from "./playoff";
 import { calculatePlayoffProbability } from "./probability";
 import Table from "cli-table3";

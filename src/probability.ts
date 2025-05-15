@@ -1,4 +1,5 @@
-import { TEAMS, ELO_POWER_RANKING_2024 } from "./data";
+import { ELO_POWER_RANKING_2024 as ELO_POWER_RANKING } from './data/2024';
+import { TEAMS } from "./data";
 import { getSeeding } from "./playoff";
 import {
   Schedule,
@@ -30,10 +31,10 @@ function* permutationsRandomSample(
       const roll = Math.random();
 
       if (weighted) {
-        const homeIndex = ELO_POWER_RANKING_2024.indexOf(matchup.teamA);
-        const homeScore = ELO_POWER_RANKING_2024.length - homeIndex;
-        const awayIndex = ELO_POWER_RANKING_2024.indexOf(matchup.teamB);
-        const awayScore = ELO_POWER_RANKING_2024.length - awayIndex;
+        const homeIndex = ELO_POWER_RANKING.indexOf(matchup.teamA);
+        const homeScore = ELO_POWER_RANKING.length - homeIndex;
+        const awayIndex = ELO_POWER_RANKING.indexOf(matchup.teamB);
+        const awayScore = ELO_POWER_RANKING.length - awayIndex;
 
         if (homeIndex === -1 || awayIndex === -1) {
           throw new Error(`${matchup.teamA} or ${matchup.teamB} not found`);
