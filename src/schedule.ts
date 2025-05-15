@@ -1,3 +1,5 @@
+import { TEAM_SHORTHANDS } from "./data";
+
 export interface TeamScheduleWeek {
   opponent: string;
   away: boolean;
@@ -32,6 +34,10 @@ export function parseSchedule(
           const won = teamPlayedGames[index] ?? null;
 
           const week = index + 1;
+
+          if (!TEAM_SHORTHANDS.includes(opponentShorthand)) {
+            throw new Error(`Unrecognized team in schedule: "${opponentShorthand}"`);
+          }
 
           if (won !== null && won === opponentPlayedGames[index]) {
             throw new Error(

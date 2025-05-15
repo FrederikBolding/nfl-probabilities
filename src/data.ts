@@ -1,6 +1,3 @@
-import { calculatePowerRanking } from "./elo";
-import { parseSchedule } from "./schedule";
-
 export const REGULAR_SEASON_GAMES = 17; // Excluding bye-weeks
 export const WILDCARD_SPOTS = 3;
 
@@ -286,3 +283,5 @@ export const TEAM_MAP = TEAMS.reduce<Record<string, Team>>((acc, team) => {
   acc[team.shorthand] = team;
   return acc;
 }, {});
+
+export const TEAM_SHORTHANDS = Object.keys(TEAM_MAP);
