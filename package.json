@@ -4,15 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/index.ts",
-    "fetch": "ts-node src/fetch.ts"
+    "start": "tsx src/index.ts",
+    "fetch": "tsx src/fetch.ts"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^22.9.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
   },
   "dependencies": {
     "@colors/colors": "^1.6.0",
