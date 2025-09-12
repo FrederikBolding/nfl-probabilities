@@ -84,7 +84,7 @@ export function calculatePlayoffProbability(
       const teamName = teamSchedule[0];
       const games = teamSchedule[1];
       // Only include decided games
-      acc[teamName] = games.filter((game) => game.won !== null);
+      acc[teamName] = games.filter((game) => game.result !== null);
       return acc;
     },
     {}
@@ -96,7 +96,7 @@ export function calculatePlayoffProbability(
       const games = teamSchedule[1];
       // Only include undecided games
       acc[teamName] = games
-        .filter((game) => game?.won === null)
+        .filter((game) => game?.result === null)
         // Copy object to not change input values
         .map((game) => ({ ...game } as TeamScheduleWeek));
       return acc;

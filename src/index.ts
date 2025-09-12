@@ -1,5 +1,5 @@
 import { SCHEDULE } from './schedule';
-import { Conference, TEAM_MAP, Team } from "./data";
+import { Conference, TEAM_MAP, Team, WeekResult } from "./data";
 import { getSeeding } from "./playoff";
 import { calculatePlayoffProbability } from "./probability";
 import Table from "cli-table3";
@@ -12,9 +12,9 @@ const playoffProbabilities = calculatePlayoffProbability(SCHEDULE);
 
 function drawRow(team: Team, seedingData: any) {
   const weeks = SCHEDULE[team.shorthand]!;
-  const wins = weeks.filter((week) => week?.won === true).length;
-  const losses = weeks.filter((week) => week?.won === false).length;
-  const draws = 0; // TODO
+  const wins = weeks.filter((week) => week?.result === WeekResult.Win).length;
+  const losses = weeks.filter((week) => week?.result === WeekResult.Loss).length;
+  const draws = weeks.filter((week) => week?.result === WeekResult.Draw).length;
   const isEliminated = seedingData.eliminatedTeams.includes(team.shorthand);
   const isClinched = seedingData.clinchedTeams.includes(team.shorthand);
   const tag = isClinched ? "(P)" : isEliminated ? "(E)" : "";

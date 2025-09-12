@@ -2,6 +2,12 @@ export const SEASON = 2025;
 export const REGULAR_SEASON_GAMES = 17; // Excluding bye-weeks
 export const WILDCARD_SPOTS = 3;
 
+export enum WeekResult {
+  Win,
+  Loss,
+  Draw,
+}
+
 export enum Conference {
   AFC = "AFC",
   NFC = "NFC",

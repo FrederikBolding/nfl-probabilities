@@ -1,5 +1,5 @@
-import { TEAMS } from "./data";
-import { Schedule, ScheduleWithoutByes, TeamScheduleWeek } from "./schedule";
+import { TEAMS, WeekResult } from "./data";
+import { ScheduleWithoutByes, TeamScheduleWeek } from "./schedule";
 
 const K = 30;
 
@@ -36,7 +36,7 @@ export function calculatePowerRanking(schedule: ScheduleWithoutByes) {
         accumulator.push([]);
       }
       // Only include decided home games to not double count games
-      if (game.won !== null && !game.away) {
+      if (game.result !== null && !game.away) {
         accumulator[index]!.push({ ...game, team: teamName });
       }
     });
@@ -47,7 +47,12 @@ export function calculatePowerRanking(schedule: ScheduleWithoutByes) {
     week.forEach((game) => {
       const ratingA = ratings[game.team]!;
       const ratingB = ratings[game.opponent]!;
-      const outcome = game.won ? 1.0 : 0.0; // TODO: Handle draw
+      const outcome =
+        game.result === WeekResult.Win
+          ? 1.0
+          : game.result === WeekResult.Draw
+          ? 0.5
+          : 0.0;
       const { ratingA: newRatingA, ratingB: newRatingB } = calculateRating(
         ratingA,
         ratingB,

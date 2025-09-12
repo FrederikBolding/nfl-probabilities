@@ -1,4 +1,4 @@
-import { TEAMS, TEAMS_OBJECTS, SEASON } from "./data";
+import { TEAMS, TEAMS_OBJECTS, SEASON, WeekResult } from "./data";
 import { calculatePowerRanking } from "./elo";
 
 const RAW_DATA = require(`./data/${SEASON}.json`);
@@ -10,7 +10,7 @@ export const ELO_POWER_RANKING = calculatePowerRanking(SCHEDULE);
 export interface TeamScheduleWeek {
   opponent: string;
   away: boolean;
-  won: boolean | null;
+  result: WeekResult | null;
   week: number;
 }
 
@@ -31,6 +31,23 @@ interface RawScheduleGame {
   teamBScore: number;
 }
 
+function getResult(
+  teamAScore: number | null,
+  teamBScore: number | null
+): [null, null] | [WeekResult, WeekResult] {
+  if (teamAScore === null || teamBScore === null) {
+    return [null, null];
+  }
+
+  if (teamAScore > teamBScore) {
+    return [WeekResult.Win, WeekResult.Loss];
+  } else if (teamBScore > teamAScore) {
+    return [WeekResult.Loss, WeekResult.Win];
+  }
+
+  return [WeekResult.Draw, WeekResult.Draw];
+}
+
 export function formatSchedule(data: RawScheduleData): ScheduleWithoutByes {
   const schedule = TEAMS.reduce<Record<string, TeamScheduleWeek[]>>(
     (acc, team) => {
@@ -46,28 +63,23 @@ export function formatSchedule(data: RawScheduleData): ScheduleWithoutByes {
     const homeTeam = TEAMS_OBJECTS[game.teamA]!.shorthand;
     const awayTeam = TEAMS_OBJECTS[game.teamB]!.shorthand;
 
-    const gamePlayed = game.teamAScore !== null && game.teamBScore !== null;
-
-    // TODO: Account for ties
-    if (game.teamAScore !== null && game.teamAScore === game.teamBScore) {
-      throw new Error("Ties have not yet been implemented.");
-    }
-
-    const homeTeamWon = gamePlayed ? game.teamAScore > game.teamBScore : null;
-    const awayTeamWon = gamePlayed ? !homeTeamWon : null;
+    const [homeTeamResult, awayTeamResult] = getResult(
+      game.teamAScore,
+      game.teamBScore
+    );
 
     schedule[homeTeam]!.push({
       week: game.week,
       opponent: awayTeam,
       away: false,
-      won: homeTeamWon,
+      result: homeTeamResult,
     });
 
     schedule[awayTeam]!.push({
       week: game.week,
       opponent: homeTeam,
       away: true,
-      won: awayTeamWon,
+      result: awayTeamResult,
     });
   });
 

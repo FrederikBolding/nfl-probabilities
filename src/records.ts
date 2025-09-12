@@ -5,6 +5,7 @@ import {
   Division,
   NFC_TEAMS,
   Team,
+  WeekResult,
 } from "./data";
 import { ScheduleWithoutByes, TeamScheduleWeek } from "./schedule";
 
@@ -43,17 +44,18 @@ function getRecord(
       if (filterFn && !filterFn(week)) {
         return acc;
       }
-      if (week.won === true) {
+      if (week.result === WeekResult.Win) {
         acc.wins++;
-      } else if (week.won === false) {
+      } else if (week.result === WeekResult.Loss) {
         acc.losses++;
+      } else if (week.result === WeekResult.Draw) {
+        acc.draws++;
       }
       return acc;
     },
     {
       wins: 0,
       losses: 0,
-      // TODO
       draws: 0,
     }
   );
@@ -132,7 +134,7 @@ function getStrengthOfSchedule(
     draws: number;
   }>(
     (accumulator, match) => {
-      if (!victoryOnly || (victoryOnly && match.won)) {
+      if (!victoryOnly || (victoryOnly && match.result === WeekResult.Win)) {
         const record = getRecord(schedule[match.opponent]!);
         accumulator.wins += record.wins;
         accumulator.losses += record.losses;
