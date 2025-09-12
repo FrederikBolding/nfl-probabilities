@@ -1,4 +1,4 @@
-import { SCHEDULE } from './data/schedule';
+import { SCHEDULE } from './schedule';
 import { Conference, TEAM_MAP, Team } from "./data";
 import { getSeeding } from "./playoff";
 import { calculatePlayoffProbability } from "./probability";

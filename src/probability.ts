@@ -1,4 +1,3 @@
-import { ELO_POWER_RANKING } from './data/schedule';
 import { TEAMS } from "./data";
 import { getSeeding } from "./playoff";
 import {
@@ -6,6 +5,7 @@ import {
   ScheduleWithoutByes,
   TeamScheduleWeek,
   mergeSchedules,
+  ELO_POWER_RANKING
 } from "./schedule";
 import { permutationsWithReplacement as permutationsFn } from "combinatorial-generators";
 import { filterMap } from "./utils";

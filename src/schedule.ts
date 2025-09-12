@@ -1,4 +1,13 @@
-import { TEAM_MAP, TEAM_SHORTHANDS, TEAMS, TEAMS_OBJECTS } from "./data";
+import { TEAMS, TEAMS_OBJECTS } from "./data";
+import { calculatePowerRanking } from "./elo";
+
+export const SEASON = 2025;
+
+const RAW_DATA = require(`./data/${SEASON}.json`);
+
+export const SCHEDULE = formatSchedule(RAW_DATA);
+
+export const ELO_POWER_RANKING = calculatePowerRanking(SCHEDULE);
 
 export interface TeamScheduleWeek {
   opponent: string;
@@ -65,50 +74,6 @@ export function formatSchedule(data: RawScheduleData): ScheduleWithoutByes {
   });
 
   return schedule;
-}
-
-export function parseSchedule(
-  schedule: string,
-  playedGames: Record<string, (boolean | null)[]>
-): ScheduleWithoutByes {
-  const lines = schedule.trim().split("\n");
-  return Object.fromEntries(
-    lines.map((line) => {
-      const columns = line.split(" ");
-      const teamShorthand = columns[0]!;
-      const teamPlayedGames = playedGames[teamShorthand]!;
-      const games = columns
-        .slice(1)
-        .map((opponent, index) => {
-          if (opponent === "BYE") {
-            return null;
-          }
-
-          const away = opponent.startsWith("@");
-          const opponentShorthand = opponent.slice(away ? 1 : 0);
-          const opponentPlayedGames = playedGames[opponentShorthand]!;
-          const won = teamPlayedGames[index] ?? null;
-
-          const week = index + 1;
-
-          if (!TEAM_SHORTHANDS.includes(opponentShorthand)) {
-            throw new Error(
-              `Unrecognized team in schedule: "${opponentShorthand}"`
-            );
-          }
-
-          if (won !== null && won === opponentPlayedGames[index]) {
-            throw new Error(
-              `${teamShorthand} and ${opponentShorthand} cannot both have won/lost week ${week}`
-            );
-          }
-
-          return { opponent: opponentShorthand, away, won, week };
-        })
-        .filter(Boolean);
-      return [teamShorthand, games as TeamScheduleWeek[]];
-    })
-  );
 }
 
 export function mergeSchedules(

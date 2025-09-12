@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "fetch": "ts-node src/data/fetch.ts"
+    "fetch": "ts-node src/fetch.ts"
   },
   "author": "",
   "license": "ISC",
