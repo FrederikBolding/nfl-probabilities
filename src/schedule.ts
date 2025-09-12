@@ -1,7 +1,5 @@
-import { TEAMS, TEAMS_OBJECTS } from "./data";
+import { TEAMS, TEAMS_OBJECTS, SEASON } from "./data";
 import { calculatePowerRanking } from "./elo";
-
-export const SEASON = 2025;
 
 const RAW_DATA = require(`./data/${SEASON}.json`);
 

@@ -1,5 +1,4 @@
-import { SEASON } from "./schedule";
-import { REGULAR_SEASON_GAMES } from "./data";
+import { REGULAR_SEASON_GAMES, SEASON } from "./data";
 import { writeFile } from "fs/promises";
 
 // Partial type to satisfy TS

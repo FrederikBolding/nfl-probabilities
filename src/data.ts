@@ -1,3 +1,4 @@
+export const SEASON = 2025;
 export const REGULAR_SEASON_GAMES = 17; // Excluding bye-weeks
 export const WILDCARD_SPOTS = 3;
 
