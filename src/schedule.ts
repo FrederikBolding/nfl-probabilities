@@ -1,4 +1,4 @@
-import { TEAM_SHORTHANDS } from "./data";
+import { TEAM_MAP, TEAM_SHORTHANDS, TEAMS, TEAMS_OBJECTS } from "./data";
 
 export interface TeamScheduleWeek {
   opponent: string;
@@ -10,6 +10,62 @@ export interface TeamScheduleWeek {
 export type Schedule = Record<string, (TeamScheduleWeek | null)[]>;
 
 export type ScheduleWithoutByes = Record<string, TeamScheduleWeek[]>;
+
+interface RawScheduleData {
+  weeks: RawScheduleGame[][];
+}
+
+interface RawScheduleGame {
+  week: number;
+  game: number;
+  teamA: keyof typeof TEAMS_OBJECTS;
+  teamB: keyof typeof TEAMS_OBJECTS;
+  teamAScore: number;
+  teamBScore: number;
+}
+
+export function formatSchedule(data: RawScheduleData): ScheduleWithoutByes {
+  const schedule = TEAMS.reduce<Record<string, TeamScheduleWeek[]>>(
+    (acc, team) => {
+      acc[team.shorthand] = [];
+      return acc;
+    },
+    {}
+  );
+
+  const allGames = data.weeks.flat();
+
+  allGames.forEach((game) => {
+    const homeTeam = TEAMS_OBJECTS[game.teamA]!.shorthand;
+    const awayTeam = TEAMS_OBJECTS[game.teamB]!.shorthand;
+
+    const gamePlayed = game.teamAScore !== null && game.teamBScore !== null;
+
+    // TODO: Account for ties
+    if (game.teamAScore !== null && game.teamAScore === game.teamBScore) {
+      throw new Error("Ties have not yet been implemented.");
+    }
+
+    const homeTeamWon = gamePlayed ? game.teamAScore > game.teamBScore : null;
+    const awayTeamWon = gamePlayed ? !homeTeamWon : null;
+
+    schedule[homeTeam]!.push({
+      week: game.week,
+      opponent: awayTeam,
+      away: false,
+      won: homeTeamWon,
+    });
+
+    schedule[awayTeam]!.push({
+      week: game.week,
+      opponent: homeTeam,
+      away: true,
+      won: awayTeamWon,
+    });
+  });
+
+  return schedule;
+}
 
 export function parseSchedule(
   schedule: string,
@@ -36,7 +92,9 @@ export function parseSchedule(
           const week = index + 1;
 
           if (!TEAM_SHORTHANDS.includes(opponentShorthand)) {
-            throw new Error(`Unrecognized team in schedule: "${opponentShorthand}"`);
+            throw new Error(
+              `Unrecognized team in schedule: "${opponentShorthand}"`
+            );
           }
 
           if (won !== null && won === opponentPlayedGames[index]) {

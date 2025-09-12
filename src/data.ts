@@ -57,7 +57,7 @@ export interface Team {
   conference: Conference;
 }
 
-const TEAMS_OBJECTS = {
+export const TEAMS_OBJECTS = {
   "Arizona Cardinals": {
     shorthand: "ARI",
     division: Division.NFC_West,
@@ -188,7 +188,7 @@ const TEAMS_OBJECTS = {
     division: Division.NFC_East,
     conference: Conference.NFC,
   },
-  "Pittsburg Steelers": {
+  "Pittsburgh Steelers": {
     shorthand: "PIT",
     division: Division.AFC_North,
     conference: Conference.AFC,

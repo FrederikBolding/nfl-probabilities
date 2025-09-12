@@ -1,4 +1,4 @@
-import { ELO_POWER_RANKING_2024 as ELO_POWER_RANKING } from './data/2024';
+import { ELO_POWER_RANKING } from './data/schedule';
 import { TEAMS } from "./data";
 import { getSeeding } from "./playoff";
 import {
