@@ -1,11 +1,11 @@
 import { TEAMS, TEAMS_OBJECTS, SEASON, WeekResult } from "./data";
-import { calculatePowerRanking } from "./elo";
+import { calculateTeamRatings } from "./elo";
 
 const RAW_DATA = require(`./data/${SEASON}.json`);
 
 export const SCHEDULE = formatSchedule(RAW_DATA);
 
-export const ELO_POWER_RANKING = calculatePowerRanking(SCHEDULE);
+export const TEAM_ELO = calculateTeamRatings(SCHEDULE);
 
 export interface TeamScheduleWeek {
   opponent: string;

@@ -5,7 +5,7 @@ const K = 30;
 
 const INITIAL_ELO = 1000;
 
-function calculateProbability(ratingA: number, ratingB: number) {
+export function calculateProbability(ratingA: number, ratingB: number) {
   return 1 / (1 + Math.pow(10, (ratingA - ratingB) / 400));
 }
 
@@ -19,7 +19,7 @@ function calculateRating(ratingA: number, ratingB: number, outcome: number) {
   };
 }
 
-export function calculatePowerRanking(schedule: ScheduleWithoutByes) {
+export function calculateTeamRatings(schedule: ScheduleWithoutByes) {
   const ratings = TEAMS.reduce<Record<string, number>>((accumulator, team) => {
     accumulator[team.shorthand] = INITIAL_ELO;
     return accumulator;
@@ -63,7 +63,5 @@ export function calculatePowerRanking(schedule: ScheduleWithoutByes) {
     });
   });
 
-  return Object.entries(ratings)
-    .sort((a, b) => b[1] - a[1])
-    .map((rating) => rating[0]);
+  return ratings;
 }

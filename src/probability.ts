@@ -5,10 +5,11 @@ import {
   ScheduleWithoutByes,
   TeamScheduleWeek,
   mergeSchedules,
-  ELO_POWER_RANKING
+  TEAM_ELO
 } from "./schedule";
 import { permutationsWithReplacement as permutationsFn } from "combinatorial-generators";
 import { filterMap } from "./utils";
+import { calculateProbability as calculateEloProbability } from "./elo";
 
 interface UndecidedMatchup {
   week: number;
@@ -31,19 +32,11 @@ function* permutationsRandomSample(
       const roll = Math.random();
 
       if (weighted) {
-        const homeIndex = ELO_POWER_RANKING.indexOf(matchup.teamA);
-        const homeScore = ELO_POWER_RANKING.length - homeIndex;
-        const awayIndex = ELO_POWER_RANKING.indexOf(matchup.teamB);
-        const awayScore = ELO_POWER_RANKING.length - awayIndex;
+        const homeElo = TEAM_ELO[matchup.teamA]!;
+        const awayElo = TEAM_ELO[matchup.teamB]!;
+        const probability = calculateEloProbability(homeElo, awayElo);
 
-        if (homeIndex === -1 || awayIndex === -1) {
-          throw new Error(`${matchup.teamA} or ${matchup.teamB} not found`);
-        }
-
-        // TODO: Consider weighting this differently to be less skewed.
-        const total = homeScore + awayScore;
-        const winPercentage = homeScore / total;
-        return roll < winPercentage;
+        return roll < probability;
       }
 
       return roll < 0.5;
