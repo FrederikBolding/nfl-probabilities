@@ -1,4 +1,4 @@
-import { TEAMS } from "./data";
+import { TEAMS, WeekResult } from "./data";
 import { getSeeding } from "./playoff";
 import {
   Schedule,
@@ -143,13 +143,13 @@ export function calculatePlayoffProbability(
           opponent: matchup.teamB,
           away: false,
           week: matchup.week,
-          won: permutation[index]!,
+          result: permutation[index]! ? WeekResult.Win : WeekResult.Loss,
         });
         acc[matchup.teamB]!.push({
           opponent: matchup.teamA,
           away: true,
           week: matchup.week,
-          won: !permutation[index]!,
+          result: permutation[index]! ? WeekResult.Loss : WeekResult.Win,
         });
         return acc;
       },
