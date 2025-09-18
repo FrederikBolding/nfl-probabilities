@@ -442,3 +442,47 @@ function getConferenceSeeding(
 
   return { seeding, eliminatedTeams, clinchedTeams };
 }
+
+// Get playoff teams without doing full ordering for performance reasons.
+export function getPlayoffTeams(
+  schedule: ScheduleWithoutByes,
+  conference: Conference
+) {
+  const conferenceTeams =
+    conference === Conference.AFC ? AFC_TEAMS_OBJECTS : NFC_TEAMS_OBJECTS;
+
+  const records = getMultipleRecords(schedule, conferenceTeams);
+
+  const divisionWinners = getDivisionWinners(records, conference).map(
+    (record) => record.shorthand
+  );
+
+  const remainingTeamRecords = records.filter(
+    (record) => !divisionWinners.includes(record.shorthand)
+  );
+
+  const initialSort = remainingTeamRecords.sort((a, b) =>
+    compareWL(a.record, b.record)
+  );
+  const grouped = groupRecordsByWL(initialSort);
+
+  const wildCards = grouped
+    .reduce((accumulator, group) => {
+      const spotsLeft = WILDCARD_SPOTS - accumulator.length;
+      if (spotsLeft === 0) {
+        return accumulator;
+      }
+
+      if (group.length === 1) {
+        accumulator.push(group[0]!);
+        return accumulator;
+      } else if (group.length > spotsLeft) {
+        const tieBroken = breakTies(group, false);
+        return accumulator.concat(tieBroken.slice(0, spotsLeft));
+      }
+      return accumulator.concat(group);
+    }, [])
+    .map((record) => record.shorthand);
+
+  return divisionWinners.concat(wildCards);
+}

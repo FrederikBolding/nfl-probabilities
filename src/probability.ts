@@ -1,5 +1,5 @@
-import { TEAMS, WeekResult } from "./data";
-import { getSeeding } from "./playoff";
+import { Conference, TEAMS, WeekResult } from "./data";
+import { getPlayoffTeams } from "./playoff";
 import {
   Schedule,
   ScheduleWithoutByes,
@@ -151,10 +151,11 @@ export function calculatePlayoffProbability(
 
     try {
       const mergedSchedule = mergeSchedules(decidedSchedule, possibleSchedule);
-      const { nfc, afc } = getSeeding(mergedSchedule);
-      const combinedSeeding = nfc.seeding.concat(afc.seeding);
+      const afcPlayoffTeams = getPlayoffTeams(mergedSchedule, Conference.AFC);
+      const nfcPlayoffTeams = getPlayoffTeams(mergedSchedule, Conference.NFC);
+      const combinedPlayoff = afcPlayoffTeams.concat(nfcPlayoffTeams);
 
-      for (const team of combinedSeeding) {
+      for (const team of combinedPlayoff) {
         if (!seedingOccurrences[team]) {
           seedingOccurrences[team] = 1;
         } else {

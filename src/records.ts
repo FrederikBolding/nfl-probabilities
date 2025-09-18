@@ -157,7 +157,6 @@ export function getMultipleRecords(
   teams: Team[]
 ): TeamRecord[] {
   return teams.map((team) => {
-    // Filter out bye weeks
     const weeks = schedule[team.shorthand]!;
     const h2h = {} as Record<string, TeamRecordData>;
     const commonRecord = {} as Record<string, TeamRecordData | undefined>;
