@@ -55,7 +55,7 @@ export function findMinIndexMap<T>(array: T[], mapFn: (value: T) => number) {
 }
 
 export function separate<T>(array: T[], index: number) {
-  // Can we do this without copying and splicing?
+  // TODO: Can we do this without copying and splicing?
   const copy = [...array];
   const separatedItem = copy.splice(index, 1);
   return [copy, separatedItem[0]];

@@ -192,7 +192,7 @@ function breakTies(
       if (!(record.division in accumulator)) {
         accumulator[record.division] = 0;
       }
-      accumulator[record.division]++;
+      accumulator[record.division]!++;
       return accumulator;
     },
     {}

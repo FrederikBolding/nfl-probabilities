@@ -5,6 +5,7 @@ const K = 30;
 
 const INITIAL_ELO = 1000;
 
+// TODO: Consider memoizing
 export function calculateProbability(ratingA: number, ratingB: number) {
   return 1 / (1 + Math.pow(10, (ratingA - ratingB) / 400));
 }
