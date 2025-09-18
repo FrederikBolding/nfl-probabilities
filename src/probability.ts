@@ -34,7 +34,7 @@ function* permutationsRandomSample(
       if (weighted) {
         const homeElo = TEAM_ELO[matchup.teamA]!;
         const awayElo = TEAM_ELO[matchup.teamB]!;
-        const probability = calculateEloProbability(homeElo, awayElo);
+        const probability = calculateEloProbability(awayElo, homeElo);
 
         return roll < probability;
       }

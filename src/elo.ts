@@ -1,7 +1,7 @@
 import { TEAMS, WeekResult } from "./data";
 import { ScheduleWithoutByes, TeamScheduleWeek } from "./schedule";
 
-const K = 30;
+const K = 20;
 
 const INITIAL_ELO = 1000;
 
@@ -12,7 +12,7 @@ export function calculateProbability(ratingA: number, ratingB: number) {
 
 function calculateRating(ratingA: number, ratingB: number, outcome: number) {
   const probabilityA = calculateProbability(ratingB, ratingA);
-  const probabilityB = calculateProbability(ratingA, ratingB);
+  const probabilityB = 1.0 - probabilityA;
 
   return {
     ratingA: ratingA + K * (outcome - probabilityA),
