@@ -269,7 +269,7 @@ function getDivisionWinners(records: TeamRecord[], conference: Conference) {
       return grouped[0]![0]!;
     }
 
-    const tiesBroken = grouped.flatMap((group) => breakTies(group, true));
+    const tiesBroken = breakTies(grouped[0]!, true);
 
     return tiesBroken[0]!;
   });
