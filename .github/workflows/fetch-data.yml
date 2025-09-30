@@ -39,14 +39,16 @@ jobs:
       - name: Create PR with gh CLI
         run: |
           BRANCH="update-data-$(date +'%Y-%m-%d')"
+          TITLE="Update with latest data as of $(date +'%Y-%m-%d')"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
           git add .
-          git commit -m "Update with latest data as of $(date +'%Y-%m-%d')"
+          git commit -m "$TITLE"
           git push origin "$BRANCH"
           gh pr create \
-            --title "Update with latest data as of $(date +'%Y-%m-%d')" \
+            --title "$TITLE" \
+            --body "$TITLE" \
             --head "$BRANCH" \
             --base main
         env:
