@@ -1,0 +1,53 @@
+name: Auto-fetch data
+
+on:
+  schedule:
+    - cron: "0 14 * 9-12 3" # Wednesdays, September-December
+    - cron: "0 14 * 1 3" # Wednesdays, January
+  workflow_dispatch:
+
+jobs:
+  update-nfl-data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Fetch latest NFL data
+        run: yarn fetch
+
+      - name: Exit if no changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 1
+          fi
+
+      - name: Create PR with gh CLI
+        run: |
+          BRANCH="update-data-$(date +'%Y-%m-%d')"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add .
+          git commit -m "Update with latest data as of $(date +'%Y-%m-%d')"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "Update with latest data as of $(date +'%Y-%m-%d')" \
+            --head "$BRANCH" \
+            --base main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
