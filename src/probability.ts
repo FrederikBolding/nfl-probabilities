@@ -47,7 +47,7 @@ function* permutationsRandomSample(
 function generatePermutations(unplayedMatchups: UndecidedMatchup[]) {
   const n = unplayedMatchups.length;
   const outcomes = 2 ** n;
-  const samples = 100_000;
+  const samples = 40_000;
 
   if (outcomes <= samples) {
     console.log(
