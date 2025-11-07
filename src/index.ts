@@ -1,4 +1,4 @@
-import { SCHEDULE } from './schedule';
+import { SCHEDULE } from "./schedule";
 import { Conference, TEAM_MAP, Team, WeekResult } from "./data";
 import { getSeeding } from "./playoff";
 import { calculatePlayoffProbability } from "./probability";
@@ -10,10 +10,15 @@ const seeding = getSeeding(SCHEDULE, true);
 
 const playoffProbabilities = calculatePlayoffProbability(SCHEDULE);
 
-function drawRow(team: Team, seedingData: any) {
+function drawRow(
+  team: Team,
+  seedingData: ReturnType<typeof getSeeding>["afc"]
+) {
   const weeks = SCHEDULE[team.shorthand]!;
   const wins = weeks.filter((week) => week?.result === WeekResult.Win).length;
-  const losses = weeks.filter((week) => week?.result === WeekResult.Loss).length;
+  const losses = weeks.filter(
+    (week) => week?.result === WeekResult.Loss
+  ).length;
   const draws = weeks.filter((week) => week?.result === WeekResult.Draw).length;
   const isEliminated = seedingData.eliminatedTeams.includes(team.shorthand);
   const isClinched = seedingData.clinchedTeams.includes(team.shorthand);
@@ -21,7 +26,7 @@ function drawRow(team: Team, seedingData: any) {
   return [
     `${team.name.split(" ").at(-1)} ${tag}`,
     `${wins}-${losses}-${draws}`,
-    `${playoffProbabilities[team.shorthand]!.toFixed(2)}%`,
+    `${playoffProbabilities[team.shorthand]!.toFixed(1)}%`,
   ];
 }
 
@@ -58,15 +63,6 @@ const afc = Object.values(TEAM_MAP)
   .sort((a, b) => {
     const aIndex = seeding.afc.seeding.indexOf(a.shorthand);
     const bIndex = seeding.afc.seeding.indexOf(b.shorthand);
-    if (aIndex === -1 && bIndex === -1) {
-      return (
-        playoffProbabilities[b.shorthand]! - playoffProbabilities[a.shorthand]!
-      );
-    } else if (aIndex === -1) {
-      return 1;
-    } else if (bIndex === -1) {
-      return -1;
-    }
     return aIndex - bIndex;
   });
 
@@ -75,15 +71,6 @@ const nfc = Object.values(TEAM_MAP)
   .sort((a, b) => {
     const aIndex = seeding.nfc.seeding.indexOf(a.shorthand);
     const bIndex = seeding.nfc.seeding.indexOf(b.shorthand);
-    if (aIndex === -1 && bIndex === -1) {
-      return (
-        playoffProbabilities[b.shorthand]! - playoffProbabilities[a.shorthand]!
-      );
-    } else if (aIndex === -1) {
-      return 1;
-    } else if (bIndex === -1) {
-      return -1;
-    }
     return aIndex - bIndex;
   });
 

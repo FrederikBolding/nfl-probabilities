@@ -413,7 +413,9 @@ function getConferenceSeeding(
     .slice(0, WILDCARD_SPOTS)
     .map((team) => team.shorthand);
 
-  const seeding = divisionWinners.concat(wildCards);
+  const seeding = divisionWinners.concat(
+    remainingTeamsSorted.map((team) => team.shorthand)
+  );
 
   const eliminatedTeams = includeEliminations
     ? conferenceTeams.reduce<string[]>((accumulator, team) => {
