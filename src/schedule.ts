@@ -12,6 +12,8 @@ export interface TeamScheduleWeek {
   away: boolean;
   result: WeekResult | null;
   week: number;
+  homeScore?: number;
+  awayScore?: number;
 }
 
 export type Schedule = Record<string, (TeamScheduleWeek | null)[]>;
@@ -73,6 +75,8 @@ export function formatSchedule(data: RawScheduleData): ScheduleWithoutByes {
       opponent: awayTeam,
       away: false,
       result: homeTeamResult,
+      homeScore: game.teamAScore,
+      awayScore: game.teamBScore,
     });
 
     schedule[awayTeam]!.push({
@@ -80,6 +84,8 @@ export function formatSchedule(data: RawScheduleData): ScheduleWithoutByes {
       opponent: homeTeam,
       away: true,
       result: awayTeamResult,
+      homeScore: game.teamAScore,
+      awayScore: game.teamBScore,
     });
   });
 

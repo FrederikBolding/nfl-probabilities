@@ -5,7 +5,7 @@ import {
   ScheduleWithoutByes,
   TeamScheduleWeek,
   mergeSchedules,
-  TEAM_ELO
+  TEAM_ELO,
 } from "./schedule";
 import { permutationsWithReplacement as permutationsFn } from "combinatorial-generators";
 import { filterMap } from "./utils";
@@ -34,7 +34,7 @@ function* permutationsRandomSample(
       if (weighted) {
         const homeElo = TEAM_ELO[matchup.teamA]!;
         const awayElo = TEAM_ELO[matchup.teamB]!;
-        const probability = calculateEloProbability(awayElo, homeElo);
+        const probability = calculateEloProbability(homeElo, awayElo);
 
         return roll < probability;
       }
