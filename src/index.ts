@@ -23,10 +23,17 @@ function drawRow(
   const isEliminated = seedingData.eliminatedTeams.includes(team.shorthand);
   const isClinched = seedingData.clinchedTeams.includes(team.shorthand);
   const tag = isClinched ? "(P)" : isEliminated ? "(E)" : "";
+  const playoffProbability = playoffProbabilities[team.shorthand]!;
   return [
     `${team.name.split(" ").at(-1)} ${tag}`,
     `${wins}-${losses}-${draws}`,
-    `${playoffProbabilities[team.shorthand]!.toFixed(1)}%`,
+    `${
+      isEliminated || playoffProbability > 1
+        ? !isClinched && playoffProbability > 99
+          ? ">99"
+          : playoffProbability.toFixed(0)
+        : "<1"
+    }%`,
   ];
 }
 
