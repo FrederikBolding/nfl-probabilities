@@ -86,6 +86,21 @@ function findDivisionTiebreakEliminationIndex(records: TeamRecord[]): number {
     return strengthOfScheduleIndex;
   }
 
+  // Next, look at points scored / points allowed in conference games
+  const conferencePointsIndex = findMinIndexMap(
+    records,
+    (record) => record.conferencePoints.diff
+  );
+  if (conferencePointsIndex !== -1) {
+    return conferencePointsIndex;
+  }
+
+  // Next, look at points scored / points allowed in all games
+  const pointsIndex = findMinIndexMap(records, (record) => record.points.diff);
+  if (pointsIndex !== -1) {
+    return pointsIndex;
+  }
+
   // TODO: Deal with more tie breakers
 
   return -1;
@@ -153,6 +168,21 @@ function findConferenceTiebreakEliminationIndex(records: TeamRecord[]) {
   );
   if (strengthOfScheduleIndex !== -1) {
     return strengthOfScheduleIndex;
+  }
+
+  // Next, look at points scored / points allowed in conference games
+  const conferencePointsIndex = findMinIndexMap(
+    records,
+    (record) => record.conferencePoints.diff
+  );
+  if (conferencePointsIndex !== -1) {
+    return conferencePointsIndex;
+  }
+
+  // Next, look at points scored / points allowed in all games
+  const pointsIndex = findMinIndexMap(records, (record) => record.points.diff);
+  if (pointsIndex !== -1) {
+    return pointsIndex;
   }
 
   // TODO: Deal with more tie breakers

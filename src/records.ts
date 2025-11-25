@@ -4,6 +4,7 @@ import {
   DIVISION_MAP,
   Division,
   NFC_TEAMS,
+  TEAM_MAP,
   Team,
   WeekResult,
 } from "./data";
@@ -19,6 +20,12 @@ export interface TeamRecordData {
   totalGames: number;
 }
 
+export interface TeamRecordPoints {
+  for: number;
+  against: number;
+  diff: number;
+}
+
 export interface TeamRecord {
   shorthand: string;
   division: Division;
@@ -29,6 +36,8 @@ export interface TeamRecord {
   conferenceRecord: TeamRecordData;
   strengthOfVictory: TeamRecordData;
   strengthOfSchedule: TeamRecordData;
+  points: TeamRecordPoints;
+  conferencePoints: TeamRecordPoints;
 }
 
 function getRecord(
@@ -152,6 +161,24 @@ function getStrengthOfSchedule(
   return calculateWL(totalRecord);
 }
 
+function getPoints(weeks: TeamScheduleWeek[]) {
+  return weeks.reduce(
+    (accumulator, week) => {
+      if (week.homeScore && week.awayScore) {
+        const pointsFor = week.away ? week.awayScore : week.homeScore;
+        const pointsAgainst = week.away ? week.homeScore : week.awayScore;
+        const diff = pointsFor - pointsAgainst;
+        accumulator.for += pointsFor;
+        accumulator.against += pointsAgainst;
+        accumulator.diff += diff;
+      }
+
+      return accumulator;
+    },
+    { for: 0, against: 0, diff: 0 }
+  );
+}
+
 export function getMultipleRecords(
   schedule: ScheduleWithoutByes,
   teams: Team[]
@@ -224,6 +251,25 @@ export function getMultipleRecords(
           false
         );
         return this.strengthOfSchedule;
+      },
+      get points(): TeamRecordPoints {
+        // @ts-ignore TypeScript doesn't like this with good reason.
+        delete this.points;
+        // @ts-ignore TypeScript doesn't like this with good reason.
+        this.points = getPoints(weeks);
+        return this.points;
+      },
+      get conferencePoints(): TeamRecordPoints {
+        // @ts-ignore TypeScript doesn't like this with good reason.
+        delete this.conferencePoints;
+        // @ts-ignore TypeScript doesn't like this with good reason.
+        this.conferencePoints = getPoints(
+          weeks.filter((week) => {
+            const opponentConference = TEAM_MAP[week.opponent]!.conference;
+            return opponentConference === team.conference;
+          })
+        );
+        return this.conferencePoints;
       },
     };
   });
