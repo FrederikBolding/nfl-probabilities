@@ -1,25 +1,29 @@
 import Table from "cli-table3";
 import colors from "@colors/colors/safe";
 import {
-  SCHEDULE,
   Conference,
   TEAM_MAP,
   Team,
   WeekResult,
   getSeeding,
   calculatePlayoffProbability,
+  getSchedule,
 } from "@nfl-probabilities/core";
 
-console.log("Calculating current seeding...");
-const seeding = getSeeding(SCHEDULE, true);
+const args = process.argv;
+const season = args[2] ?? 2025;
 
-const playoffProbabilities = calculatePlayoffProbability(SCHEDULE);
+const { schedule, ratings } = getSchedule(season);
+console.log("Calculating current seeding...");
+const seeding = getSeeding(schedule, true);
+
+const playoffProbabilities = calculatePlayoffProbability(schedule, ratings);
 
 function drawRow(
   team: Team,
   seedingData: ReturnType<typeof getSeeding>["afc"]
 ) {
-  const weeks = SCHEDULE[team.shorthand]!;
+  const weeks = schedule[team.shorthand]!;
   const wins = weeks.filter((week) => week?.result === WeekResult.Win).length;
   const losses = weeks.filter(
     (week) => week?.result === WeekResult.Loss

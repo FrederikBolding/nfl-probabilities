@@ -5,7 +5,6 @@ import {
   ScheduleWithoutByes,
   TeamScheduleWeek,
   mergeSchedules,
-  TEAM_ELO,
 } from "./schedule";
 import { permutationsWithReplacement as permutationsFn } from "combinatorial-generators";
 import { filterMap } from "./utils";
@@ -25,15 +24,15 @@ function permutationsExtensive(n: number) {
 function* permutationsRandomSample(
   unplayedMatchups: UndecidedMatchup[],
   samples: number,
-  weighted: boolean
+  teamRatings?: Record<string, number>
 ) {
   for (let i = 0; i < samples; i++) {
     yield unplayedMatchups.map((matchup) => {
       const roll = Math.random();
 
-      if (weighted) {
-        const homeElo = TEAM_ELO[matchup.teamA]!;
-        const awayElo = TEAM_ELO[matchup.teamB]!;
+      if (teamRatings) {
+        const homeElo = teamRatings[matchup.teamA]!;
+        const awayElo = teamRatings[matchup.teamB]!;
         const probability = calculateEloProbability(homeElo, awayElo);
 
         return roll < probability;
@@ -44,7 +43,10 @@ function* permutationsRandomSample(
   }
 }
 
-function generatePermutations(unplayedMatchups: UndecidedMatchup[]) {
+function generatePermutations(
+  unplayedMatchups: UndecidedMatchup[],
+  teamRatings: Record<string, number>
+) {
   const n = unplayedMatchups.length;
   const outcomes = 2 ** n;
   const samples = 40_000;
@@ -65,12 +67,17 @@ function generatePermutations(unplayedMatchups: UndecidedMatchup[]) {
   );
   return {
     length: samples,
-    permutations: permutationsRandomSample(unplayedMatchups, samples, true),
+    permutations: permutationsRandomSample(
+      unplayedMatchups,
+      samples,
+      teamRatings
+    ),
   };
 }
 
 export function calculatePlayoffProbability(
-  schedule: ScheduleWithoutByes
+  schedule: ScheduleWithoutByes,
+  teamRatings: Record<string, number>
 ): Record<string, number> {
   const decidedSchedule = Object.entries(schedule).reduce<ScheduleWithoutByes>(
     (acc, teamSchedule) => {
@@ -116,8 +123,10 @@ export function calculatePlayoffProbability(
     return acc.concat(matchups);
   }, []);
 
-  const { permutations, length: outcomesTested } =
-    generatePermutations(unplayedMatchups);
+  const { permutations, length: outcomesTested } = generatePermutations(
+    unplayedMatchups,
+    teamRatings
+  );
 
   const seedingOccurrences: Record<string, number> = {};
 

@@ -10,6 +10,9 @@
     "start": "yarn workspace @nfl-probabilities/cli start",
     "fetch": "yarn workspace @nfl-probabilities/cli fetch"
   },
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  },
   "author": "",
   "license": "MIT",
   "packageManager": "yarn@4.12.0"

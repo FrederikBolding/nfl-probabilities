@@ -1,11 +1,19 @@
-import { TEAMS, TEAMS_OBJECTS, SEASON, WeekResult } from "./data";
+import { TEAMS, TEAMS_OBJECTS, WeekResult } from "./data";
 import { calculateTeamRatings } from "./elo";
 
-const RAW_DATA = require(`./data/${SEASON}.json`);
+export function getSchedule(season: number) {
+  try {
+    const json = require(`./data/${season}.json`);
 
-export const SCHEDULE = formatSchedule(RAW_DATA);
+    const schedule = formatSchedule(json);
 
-export const TEAM_ELO = calculateTeamRatings(SCHEDULE);
+    const ratings = calculateTeamRatings(schedule);
+
+    return { schedule, ratings };
+  } catch {
+    throw new Error(`Schedule unavailable for season: ${season}`);
+  }
+}
 
 export interface TeamScheduleWeek {
   opponent: string;
