@@ -1,9 +1,14 @@
-import { SCHEDULE } from "./schedule";
-import { Conference, TEAM_MAP, Team, WeekResult } from "./data";
-import { getSeeding } from "./playoff";
-import { calculatePlayoffProbability } from "./probability";
 import Table from "cli-table3";
 import colors from "@colors/colors/safe";
+import {
+  SCHEDULE,
+  Conference,
+  TEAM_MAP,
+  Team,
+  WeekResult,
+  getSeeding,
+  calculatePlayoffProbability,
+} from "@nfl-probabilities/core";
 
 console.log("Calculating current seeding...");
 const seeding = getSeeding(SCHEDULE, true);

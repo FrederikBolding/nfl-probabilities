@@ -1,4 +1,4 @@
-import { REGULAR_SEASON_GAMES, SEASON } from "./data";
+import { REGULAR_SEASON_GAMES, SEASON } from "@nfl-probabilities/core";
 import { writeFile } from "fs/promises";
 
 // Partial type to satisfy TS

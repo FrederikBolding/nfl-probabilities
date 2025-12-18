@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+      "composite": true,
       "esModuleInterop": true,
       "exactOptionalPropertyTypes": true,
       "forceConsistentCasingInFileNames": true,
@@ -10,7 +11,10 @@
       "noErrorTruncation": true,
       "noUncheckedIndexedAccess": true,
       "strict": true,
-      "target": "ESNext"
+      "target": "ESNext",
+      "paths": {
+        "@nfl-probabilities/*": ["../*/src"]
+      }
     },
     "exclude": ["./dist/**/*"]
 }
