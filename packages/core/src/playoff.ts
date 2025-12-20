@@ -305,6 +305,9 @@ function getDivisionWinners(records: TeamRecord[], conference: Conference) {
   });
 }
 
+export type Seeding = ReturnType<typeof getSeeding>;
+export type ConferenceSeeding = Seeding["afc"];
+
 export function getSeeding(
   schedule: ScheduleWithoutByes,
   includeEliminations = false

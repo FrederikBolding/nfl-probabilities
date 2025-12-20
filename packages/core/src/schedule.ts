@@ -1,9 +1,9 @@
 import { TEAMS, TEAMS_OBJECTS, WeekResult } from "./data";
 import { calculateTeamRatings } from "./elo";
 
-export function getSchedule(season: number) {
+export async function getSchedule(season: number) {
   try {
-    const json = require(`./data/${season}.json`);
+    const json = await import(`./data/${season}.json`);
 
     const schedule = formatSchedule(json);
 

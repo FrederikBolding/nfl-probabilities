@@ -2,7 +2,7 @@ import { TEAMS, WeekResult } from "./data";
 import { ScheduleWithoutByes, TeamScheduleWeek } from "./schedule";
 
 const K = 20;
-const INITIAL_ELO = 1500;
+export const INITIAL_ELO = 1500;
 const HOME_FIELD_ADVANTAGE = 65;
 
 // TODO: Consider memoizing
