@@ -1007,6 +1007,7 @@ __metadata:
     next-themes: "npm:^0.4.6"
     react: "npm:^19.2.3"
     react-dom: "npm:^19.2.3"
+    react-router-dom: "npm:^6.14.1"
     typescript: "npm:~5.9.3"
     vite: "npm:^7.2.7"
     vite-tsconfig-paths: "npm:^6.0.3"
@@ -1100,6 +1101,13 @@ __metadata:
   version: 1.7.1
   resolution: "@pandacss/is-valid-prop@npm:1.7.1"
   checksum: 10/376cb14bf52c7576275552e635a94d5b4e5bf8fe0aaa76c7f3f3b2bf36ebe47293d315ba3b4024686ab7b56206a4e979b5f83b73f6deddc49d603a87f7095524
+  languageName: node
+  linkType: hard
+
+"@remix-run/router@npm:1.23.1":
+  version: 1.23.1
+  resolution: "@remix-run/router@npm:1.23.1"
+  checksum: 10/f54845ad174564f157a2255aec8446a7f4f4e543d9d6ef9ec749d32d1fdc57273d9cc80574f87f411c2790fbe51a242273abe7002d118515038eaf4aefd3d988
   languageName: node
   linkType: hard
 
@@ -3405,6 +3413,30 @@ __metadata:
   version: 0.18.0
   resolution: "react-refresh@npm:0.18.0"
   checksum: 10/504c331c19776bf8320c23bad7f80b3a28de03301ed7523b0dd21d3f02bf2b53bbdd5aa52469b187bc90f358614b2ba303c088a0765c95f4f0a68c43a7d67b1d
+  languageName: node
+  linkType: hard
+
+"react-router-dom@npm:^6.14.1":
+  version: 6.30.2
+  resolution: "react-router-dom@npm:6.30.2"
+  dependencies:
+    "@remix-run/router": "npm:1.23.1"
+    react-router: "npm:6.30.2"
+  peerDependencies:
+    react: ">=16.8"
+    react-dom: ">=16.8"
+  checksum: 10/ca60fd157c8e1019c9994a7262a8c054326c2d5bba4bbd3b4a19918a1a21f1486cf7a1087dd3aee22c01381496b4712cd80cbd5b5388c956cdbb58541ee52194
+  languageName: node
+  linkType: hard
+
+"react-router@npm:6.30.2":
+  version: 6.30.2
+  resolution: "react-router@npm:6.30.2"
+  dependencies:
+    "@remix-run/router": "npm:1.23.1"
+  peerDependencies:
+    react: ">=16.8"
+  checksum: 10/537bd68aa9e8125e1b20702180d4d875421150280e2c4c039c663a105da05956a457cb4d0f4f6a56605d6cadf9b1c1282dc45a9845f81bdca9bc87364eafc073
   languageName: node
   linkType: hard
 

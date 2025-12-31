@@ -18,6 +18,7 @@ import {
   Text,
   SkeletonText,
 } from "@chakra-ui/react";
+import TeamLink from "./TeamLink";
 import { useContext } from "react";
 import { DataContext } from "../worker";
 
@@ -49,7 +50,13 @@ export const RecordTable = ({
   });
 
   return (
-    <Flex direction="column" flexGrow={1}>
+    <Flex
+      direction="column"
+      flexGrow={1}
+      borderWidth={1}
+      borderRadius="md"
+      overflow="hidden"
+    >
       <TableRoot variant="outline">
         <TableCaption />
         <TableHeader>
@@ -92,9 +99,9 @@ export const RecordTable = ({
             return (
               <TableRow key={team}>
                 <TableCell>
-                  <Text>
+                  <TeamLink team={team}>
                     {name} {tag}
-                  </Text>
+                  </TeamLink>
                 </TableCell>
                 <TableCell>
                   {wins}-{losses}-{draws}

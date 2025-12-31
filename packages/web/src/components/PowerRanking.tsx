@@ -13,6 +13,7 @@ import {
   TableCell,
   TableBody,
 } from "@chakra-ui/react";
+import TeamLink from "./TeamLink";
 
 export const PowerRanking = () => {
   const { ratings, schedule } = useContext(DataContext);
@@ -48,7 +49,7 @@ export const PowerRanking = () => {
               return (
                 <TableRow key={team}>
                   <TableCell>
-                    <Text>{name}</Text>
+                    <TeamLink team={team} />
                   </TableCell>
                   <TableCell>{rating.toFixed(2)}</TableCell>
                   <TableCell>
