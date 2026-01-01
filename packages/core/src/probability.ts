@@ -8,7 +8,10 @@ import {
 } from "./schedule";
 import { permutationsWithReplacement as permutationsFn } from "combinatorial-generators";
 import { filterMap } from "./utils";
-import { calculateProbability as calculateEloProbability } from "./elo";
+import {
+  calculateProbability as calculateEloProbability,
+  TeamEloRating,
+} from "./elo";
 
 interface UndecidedMatchup {
   week: number;
@@ -24,7 +27,7 @@ function permutationsExtensive(n: number) {
 function* permutationsRandomSample(
   unplayedMatchups: UndecidedMatchup[],
   samples: number,
-  teamRatings?: Record<string, number>
+  teamRatings?: Record<string, TeamEloRating>
 ) {
   for (let i = 0; i < samples; i++) {
     yield unplayedMatchups.map((matchup) => {
@@ -33,7 +36,10 @@ function* permutationsRandomSample(
       if (teamRatings) {
         const homeElo = teamRatings[matchup.teamA]!;
         const awayElo = teamRatings[matchup.teamB]!;
-        const probability = calculateEloProbability(homeElo, awayElo);
+        const probability = calculateEloProbability(
+          homeElo.current,
+          awayElo.current
+        );
 
         return roll < probability;
       }
@@ -45,7 +51,7 @@ function* permutationsRandomSample(
 
 function generatePermutations(
   unplayedMatchups: UndecidedMatchup[],
-  teamRatings: Record<string, number>
+  teamRatings: Record<string, TeamEloRating>
 ) {
   const n = unplayedMatchups.length;
   const outcomes = 2 ** n;
@@ -77,7 +83,7 @@ function generatePermutations(
 
 export function calculatePlayoffProbability(
   schedule: ScheduleWithoutByes,
-  teamRatings: Record<string, number>
+  teamRatings: Record<string, TeamEloRating>
 ): Record<string, number> {
   const decidedSchedule = Object.entries(schedule).reduce<ScheduleWithoutByes>(
     (acc, teamSchedule) => {

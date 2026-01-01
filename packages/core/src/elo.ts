@@ -40,11 +40,22 @@ function calculateRating(
   };
 }
 
+export type TeamEloRating = {
+  current: number;
+  history: number[];
+};
+
 export function calculateTeamRatings(schedule: ScheduleWithoutByes) {
-  const ratings = TEAMS.reduce<Record<string, number>>((accumulator, team) => {
-    accumulator[team.shorthand] = INITIAL_ELO;
-    return accumulator;
-  }, {});
+  const ratings = TEAMS.reduce<Record<string, TeamEloRating>>(
+    (accumulator, team) => {
+      accumulator[team.shorthand] = {
+        current: INITIAL_ELO,
+        history: [INITIAL_ELO],
+      };
+      return accumulator;
+    },
+    {}
+  );
 
   const decidedWeeks = Object.entries(schedule).reduce<
     (TeamScheduleWeek & { team: string })[][]
@@ -76,13 +87,15 @@ export function calculateTeamRatings(schedule: ScheduleWithoutByes) {
           : 0.0;
       const margin = Math.abs(game.homeScore! - game.awayScore!);
       const { ratingA: newRatingA, ratingB: newRatingB } = calculateRating(
-        ratingA,
-        ratingB,
+        ratingA.current,
+        ratingB.current,
         outcome,
         margin
       );
-      ratings[game.team] = newRatingA;
-      ratings[game.opponent] = newRatingB;
+      ratings[game.team]!.history.push(newRatingA);
+      ratings[game.opponent]!.history.push(newRatingB);
+      ratings[game.team]!.current = newRatingA;
+      ratings[game.opponent]!.current = newRatingB;
     });
   });
 

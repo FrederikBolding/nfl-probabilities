@@ -2,12 +2,10 @@ import {
   createListCollection,
   Flex,
   Heading,
-  Portal,
   Select,
   HStack,
   Link as ChakraLink,
   Text,
-  
 } from "@chakra-ui/react";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 
@@ -43,7 +41,7 @@ export const Header = () => {
           <Select.HiddenSelect />
           <Select.Label />
 
-          <Select.Control>
+          <Select.Control minW="8ch">
             <Select.Trigger>
               <Select.ValueText />
             </Select.Trigger>
@@ -52,18 +50,16 @@ export const Header = () => {
             </Select.IndicatorGroup>
           </Select.Control>
 
-          <Portal>
-            <Select.Positioner>
-              <Select.Content>
-                {seasons.items.map((season) => (
-                  <Select.Item item={season} key={season.value}>
-                    {season.label}
-                    <Select.ItemIndicator />
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Positioner>
-          </Portal>
+          <Select.Positioner>
+            <Select.Content>
+              {seasons.items.map((season) => (
+                <Select.Item item={season} key={season.value}>
+                  {season.label}
+                  <Select.ItemIndicator />
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select.Positioner>
         </Select.Root>
       </Flex>
     </Flex>

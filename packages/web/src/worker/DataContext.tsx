@@ -6,17 +6,24 @@ import {
   type ReactNode,
 } from "react";
 import Worker from "./worker?worker";
-import type { ScheduleWithoutByes, Seeding } from "@nfl-probabilities/core";
+import type {
+  Schedule,
+  ScheduleWithoutByes,
+  Seeding,
+  TeamEloRating,
+} from "@nfl-probabilities/core";
 
 export type DataContextType = {
   schedule: ScheduleWithoutByes | null;
-  ratings: Record<string, number> | null;
+  scheduleWithByes: Schedule | null;
+  ratings: Record<string, TeamEloRating> | null;
   seeding: Seeding | null;
   playoffProbabilities: Record<string, number> | null;
 };
 
 export const DataContext = createContext<DataContextType>({
   schedule: null,
+  scheduleWithByes: null,
   ratings: null,
   seeding: null,
   playoffProbabilities: null,
@@ -27,6 +34,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
   const idRef = useRef(0);
   const [schedule, setSchedule] = useState<DataContextType["schedule"]>(null);
+  const [scheduleWithByes, setScheduleWithByes] =
+    useState<DataContextType["scheduleWithByes"]>(null);
   const [ratings, setRatings] = useState<DataContextType["ratings"]>(null);
   const [seeding, setSeeding] = useState<DataContextType["seeding"]>(null);
   const [playoffProbabilities, setPlayoffProbabilities] =
@@ -45,13 +54,14 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
       worker.current.addEventListener("message", listener);
 
-      worker.current.postMessage({ id, method });
+      worker.current.postMessage({ id, season: 2025, method });
     });
   }
 
   useEffect(() => {
     callWorker("getSchedule").then((result) => {
       setSchedule(result.schedule);
+      setScheduleWithByes(result.scheduleWithByes);
       setRatings(result.ratings);
     });
     callWorker("getSeeding").then((result) => setSeeding(result));
@@ -62,7 +72,13 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <DataContext.Provider
-      value={{ schedule, ratings, seeding, playoffProbabilities }}
+      value={{
+        schedule,
+        scheduleWithByes,
+        ratings,
+        seeding,
+        playoffProbabilities,
+      }}
     >
       {children}
     </DataContext.Provider>

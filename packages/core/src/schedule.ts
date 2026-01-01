@@ -7,9 +7,25 @@ export async function getSchedule(season: number) {
 
     const schedule = formatSchedule(json);
 
+    const scheduleWithByes = Object.entries(schedule).reduce(
+      (accumulator, [team, weeks]) => {
+        const byeWeek =
+          weeks.find(
+            (week, weekIndex, array) =>
+              weekIndex < array.length &&
+              array[weekIndex + 1]!.week - week.week > 1
+          )!.week + 1;
+        const weeksCopy = [...weeks] as Schedule[any];
+        weeksCopy.splice(byeWeek, 0, null);
+        accumulator[team] = weeksCopy;
+        return accumulator;
+      },
+      {}
+    );
+
     const ratings = calculateTeamRatings(schedule);
 
-    return { schedule, ratings };
+    return { schedule, scheduleWithByes, ratings };
   } catch {
     throw new Error(`Schedule unavailable for season: ${season}`);
   }

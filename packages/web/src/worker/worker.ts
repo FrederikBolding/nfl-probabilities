@@ -4,8 +4,8 @@ import {
   calculatePlayoffProbability,
 } from "@nfl-probabilities/core";
 
-async function handleRequest(method: string) {
-  const schedule = await getSchedule(2025);
+async function handleRequest(season: number, method: string) {
+  const schedule = await getSchedule(season);
   switch (method) {
     case "getSchedule":
       return schedule;
@@ -18,6 +18,6 @@ async function handleRequest(method: string) {
 
 addEventListener("message", async (event) => {
   const id = event.data.id;
-  const result = await handleRequest(event.data.method);
+  const result = await handleRequest(event.data.season, event.data.method);
   postMessage({ id, result });
 });
