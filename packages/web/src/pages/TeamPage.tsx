@@ -12,10 +12,11 @@ import {
   Text,
   Badge,
   HStack,
+  Flex,
 } from "@chakra-ui/react";
 import { DataContext } from "../worker";
 import { TEAM_MAP, WeekResult } from "@nfl-probabilities/core";
-import TeamLink from "../components/TeamLink";
+import { TeamLink, EloChart } from "../components";
 import { useParams } from "react-router-dom";
 
 export function TeamPage() {
@@ -32,11 +33,13 @@ export function TeamPage() {
   const byeWeek = weeks.findIndex((week) => week === null) + 1;
 
   return (
-    <Box>
-      <HStack mb={4}>
+    <Flex direction="column" gap={4}>
+      <HStack>
         <Heading size="lg">{teamInfo.name}</Heading>
         <Badge>{teamInfo.division}</Badge>
       </HStack>
+      
+      <EloChart team={team} />
 
       <Box borderWidth={1} borderRadius="md" overflow="hidden">
         <TableRoot variant="outline">
@@ -131,6 +134,6 @@ export function TeamPage() {
           </TableBody>
         </TableRoot>
       </Box>
-    </Box>
+    </Flex>
   );
 }

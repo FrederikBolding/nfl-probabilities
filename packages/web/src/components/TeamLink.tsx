@@ -3,7 +3,7 @@ import { Link as ChakraLink, Text } from "@chakra-ui/react";
 import { TEAM_MAP } from "@nfl-probabilities/core";
 import { Link as RouterLink } from "react-router-dom";
 
-export default function TeamLink({
+export function TeamLink({
   team,
   children,
 }: {

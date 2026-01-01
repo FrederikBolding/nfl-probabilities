@@ -10,13 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@chakra-ui/charts": "^3.30.0",
     "@chakra-ui/react": "^3.30.0",
     "@emotion/react": "^11.14.0",
     "@nfl-probabilities/core": "workspace:^",
     "next-themes": "^0.4.6",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "react-router-dom": "^6.14.1"
+    "react-router-dom": "^6.14.1",
+    "recharts": "^3.6.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

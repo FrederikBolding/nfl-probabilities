@@ -1,10 +1,4 @@
-import {
-  Conference,
-  type ConferenceSeeding,
-  type Schedule,
-  TEAM_MAP,
-  WeekResult,
-} from "@nfl-probabilities/core";
+import { Conference, TEAM_MAP, WeekResult } from "@nfl-probabilities/core";
 import {
   Flex,
   Heading,
@@ -18,7 +12,7 @@ import {
   Text,
   SkeletonText,
 } from "@chakra-ui/react";
-import TeamLink from "./TeamLink";
+import { TeamLink } from "./TeamLink";
 import { useContext } from "react";
 import { DataContext } from "../worker";
 

@@ -1,10 +1,8 @@
 import { useContext } from "react";
 import { DataContext } from "../worker";
-import { TEAM_MAP, WeekResult } from "@nfl-probabilities/core";
+import { WeekResult } from "@nfl-probabilities/core";
 import {
   Flex,
-  Text,
-  Badge,
   TableRoot,
   TableHeader,
   TableCaption,
@@ -13,7 +11,7 @@ import {
   TableCell,
   TableBody,
 } from "@chakra-ui/react";
-import TeamLink from "./TeamLink";
+import { TeamLink } from "./TeamLink";
 
 export const PowerRanking = () => {
   const { ratings, schedule } = useContext(DataContext);
@@ -31,10 +29,9 @@ export const PowerRanking = () => {
         </TableHeader>
         <TableBody>
           {Object.entries(ratings ?? {})
-            .sort(([_teamA, ratingA], [_teamB, ratingB]) => ratingB - ratingA)
+            .sort(([_teamA, ratingA], [_teamB, ratingB]) => ratingB.current - ratingA.current)
             .map(([team, rating]) => {
-              const { name } = TEAM_MAP[team]!;
-
+  
               const weeks = schedule?.[team];
               const wins = weeks?.filter(
                 (week) => week?.result === WeekResult.Win
@@ -51,7 +48,7 @@ export const PowerRanking = () => {
                   <TableCell>
                     <TeamLink team={team} />
                   </TableCell>
-                  <TableCell>{rating.toFixed(2)}</TableCell>
+                  <TableCell>{rating.current.toFixed(2)}</TableCell>
                   <TableCell>
                     {wins}-{losses}-{draws}
                   </TableCell>
