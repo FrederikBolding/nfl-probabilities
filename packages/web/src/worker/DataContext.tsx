@@ -14,6 +14,7 @@ import type {
 } from "@nfl-probabilities/core";
 
 export type DataContextType = {
+  season: number;
   schedule: ScheduleWithoutByes | null;
   scheduleWithByes: Schedule | null;
   ratings: Record<string, TeamEloRating> | null;
@@ -22,6 +23,7 @@ export type DataContextType = {
 };
 
 export const DataContext = createContext<DataContextType>({
+  season: 2025,
   schedule: null,
   scheduleWithByes: null,
   ratings: null,
@@ -33,6 +35,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const worker = useRef(new Worker());
 
   const idRef = useRef(0);
+  const [season, setSeason] = useState(2025);
   const [schedule, setSchedule] = useState<DataContextType["schedule"]>(null);
   const [scheduleWithByes, setScheduleWithByes] =
     useState<DataContextType["scheduleWithByes"]>(null);
@@ -54,7 +57,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
       worker.current.addEventListener("message", listener);
 
-      worker.current.postMessage({ id, season: 2025, method });
+      worker.current.postMessage({ id, season, method });
     });
   }
 
@@ -68,11 +71,13 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     callWorker("calculatePlayoffProbability").then((result) =>
       setPlayoffProbabilities(result)
     );
-  }, []);
+  }, [season]);
 
   return (
     <DataContext.Provider
       value={{
+        season,
+        setSeason,
         schedule,
         scheduleWithByes,
         ratings,

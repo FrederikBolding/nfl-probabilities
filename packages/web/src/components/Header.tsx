@@ -6,13 +6,28 @@ import {
   HStack,
   Link as ChakraLink,
   Text,
+  type SelectValueChangeDetails,
 } from "@chakra-ui/react";
+import { useContext } from "react";
 import { Link as RouterLink, useLocation } from "react-router-dom";
+import { DataContext } from "../worker";
 
 export const Header = () => {
+  const { setSeason } = useContext(DataContext);
+
   const seasons = createListCollection({
-    items: [{ label: "2025", value: "2025" }],
+    items: [
+      { label: "2025", value: 2025 },
+      { label: "2024", value: 2024 },
+      { label: "2023", value: 2023 },
+    ],
   });
+
+  const onSeasonChange = (
+    details: SelectValueChangeDetails<{ label: string; value: number }>
+  ) => {
+    setSeason(details.value);
+  };
 
   return (
     <Flex
@@ -37,6 +52,7 @@ export const Header = () => {
         <Select.Root
           collection={seasons}
           defaultValue={[seasons.items[0]!.value]}
+          onValueChange={onSeasonChange}
         >
           <Select.HiddenSelect />
           <Select.Label />
