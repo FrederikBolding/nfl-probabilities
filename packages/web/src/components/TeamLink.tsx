@@ -13,8 +13,10 @@ export function TeamLink({
   const name = TEAM_MAP[team]?.name ?? team;
 
   return (
-    <ChakraLink as={RouterLink} to={`/team/${team}`} color="blue.400">
-      <Text as="span">{children ?? name}</Text>
+    <ChakraLink as={RouterLink} to={`/team/${team}`} color="blue.500" _hover={{ textDecoration: "underline" }}>
+      <Text as="span" fontWeight="medium">
+        {children ?? name}
+      </Text>
     </ChakraLink>
   );
 }

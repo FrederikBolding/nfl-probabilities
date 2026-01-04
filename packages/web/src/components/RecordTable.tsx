@@ -11,6 +11,8 @@ import {
   TableBody,
   Text,
   SkeletonText,
+  Badge,
+  Box,
 } from "@chakra-ui/react";
 import { TeamLink } from "./TeamLink";
 import { useContext } from "react";
@@ -19,9 +21,11 @@ import { DataContext } from "../worker";
 export const RecordTable = ({
   header,
   teams,
+  fullNames,
 }: {
   header: string;
   teams: string[];
+  fullNames?: boolean;
 }) => {
   const { schedule, seeding, playoffProbabilities } = useContext(DataContext);
 
@@ -76,7 +80,6 @@ export const RecordTable = ({
               conferenceSeeding?.eliminatedTeams.includes(team);
             const isClinched = conferenceSeeding?.clinchedTeams.includes(team);
 
-            const tag = isClinched ? "(P)" : isEliminated ? "(E)" : "";
             const playoffProbability = playoffProbabilities?.[team];
 
             const weeks = schedule?.[team];
@@ -90,15 +93,21 @@ export const RecordTable = ({
               (week) => week?.result === WeekResult.Draw
             ).length;
 
+            const teamName = fullNames ? name : name.split(" ").at(-1);
+
             return (
               <TableRow key={team}>
                 <TableCell>
-                  <TeamLink team={team}>
-                    {name} {tag}
-                  </TeamLink>
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <TeamLink team={team}>{teamName}</TeamLink>
+                    {isClinched && <Badge colorScheme="green">P</Badge>}
+                    {isEliminated && <Badge colorScheme="red">E</Badge>}
+                  </Box>
                 </TableCell>
                 <TableCell>
-                  {wins}-{losses}-{draws}
+                  <Text fontFamily="mono">
+                    {wins}-{losses}-{draws}
+                  </Text>
                 </TableCell>
                 <TableCell>
                   {playoffProbability !== undefined ? (

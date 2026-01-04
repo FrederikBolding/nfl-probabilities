@@ -32,24 +32,31 @@ export const Header = () => {
   return (
     <Flex
       as="header"
-      flexShrink="0"
+      flexShrink={0}
       direction="row"
-      justifyContent="space-between"
+      pt={2}
+      pb={2}
+      px={4}
+      backdropFilter="blur(1.25rem)"
+      position="fixed"
+      top="0"
+      left="0"
       width="100%"
-      pt={0}
-      pb={4}
+      zIndex="sticky"
     >
-      <HStack gap={6} alignItems="center">
+      <HStack gap={4} alignItems="center">
         <ChakraLink as={RouterLink} to="/" _hover={{ textDecoration: "none" }}>
-          <Heading as="h1" size="3xl">
+          <Heading as="h1" size={{ base: "lg", md: "2xl" }}>
             NFL Probabilities
           </Heading>
         </ChakraLink>
 
         <NavLinks />
       </HStack>
-      <Flex>
+
+      <Flex ml="auto" alignItems="center">
         <Select.Root
+          gap={0}
           collection={seasons}
           defaultValue={[seasons.items[0]!.value]}
           onValueChange={onSeasonChange}
@@ -99,10 +106,14 @@ function NavLinks() {
             key={link.to}
             as={RouterLink}
             to={link.to}
-            color={isActive ? "blue.600" : "gray.700"}
-            fontWeight={isActive ? "semibold" : "normal"}
+            color={isActive ? "blue.500" : "gray.600"}
+            fontWeight={isActive ? "semibold" : "medium"}
+            _hover={{
+              textDecor: "none",
+              color: isActive ? undefined : "gray.700",
+            }}
           >
-            <Text>{link.label}</Text>
+            <Text fontSize={{ base: "sm", md: "md" }}>{link.label}</Text>
           </ChakraLink>
         );
       })}
