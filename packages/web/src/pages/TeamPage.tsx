@@ -15,7 +15,11 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import { DataContext } from "../worker";
-import { TEAM_MAP, WeekResult } from "@nfl-probabilities/core";
+import {
+  calculateProbability,
+  TEAM_MAP,
+  WeekResult,
+} from "@nfl-probabilities/core";
 import { TeamLink, EloChart } from "../components";
 import { useParams } from "react-router-dom";
 
@@ -38,7 +42,7 @@ export function TeamPage() {
         <Heading size="lg">{teamInfo.name}</Heading>
         <Badge>{teamInfo.division}</Badge>
       </HStack>
-      
+
       <EloChart team={team} />
 
       <Box borderWidth={1} borderRadius="md" overflow="hidden">
@@ -94,6 +98,12 @@ export function TeamPage() {
                   rating?.history[adjustedWeekNumber - 1]
                 : null;
 
+              const opponentRating = ratings?.[opponent];
+              const winProbability =
+                opponentRating &&
+                rating &&
+                calculateProbability(rating.current, opponentRating.current);
+
               return (
                 <TableRow key={idx}>
                   <TableCell>
@@ -103,7 +113,9 @@ export function TeamPage() {
                   <TableCell>
                     <Text color={resultColor} fontWeight="semibold">
                       {result === null
-                        ? "TBD"
+                        ? winProbability
+                          ? `${(winProbability * 100).toFixed(1)}%`
+                          : "TBD"
                         : isWin
                         ? "W"
                         : isLoss
