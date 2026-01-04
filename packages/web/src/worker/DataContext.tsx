@@ -1,6 +1,7 @@
 import {
   createContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
@@ -35,7 +36,7 @@ export const DataContext = createContext<DataContextType>({
 });
 
 export const DataProvider = ({ children }: { children: ReactNode }) => {
-  const worker = useRef(new Worker());
+  const worker = useMemo(() => new Worker(), []);
 
   const idRef = useRef(0);
   const [season, setSeason] = useState(2025);
@@ -54,13 +55,13 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       const listener = (event: MessageEvent) => {
         if (event.data.id === id) {
           resolve(event.data.result);
-          worker.current.removeEventListener("message", listener);
+          worker.removeEventListener("message", listener);
         }
       };
 
-      worker.current.addEventListener("message", listener);
+      worker.addEventListener("message", listener);
 
-      worker.current.postMessage({ id, season, method });
+      worker.postMessage({ id, season, method });
     });
   }
 
