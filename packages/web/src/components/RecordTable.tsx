@@ -105,9 +105,13 @@ export const RecordTable = ({
                   </Box>
                 </TableCell>
                 <TableCell>
-                  <Text fontFamily="mono">
-                    {wins}-{losses}-{draws}
-                  </Text>
+                  {wins !== undefined ? (
+                    <Text fontFamily="mono">
+                      {wins}-{losses}-{draws}
+                    </Text>
+                  ) : (
+                    <SkeletonText noOfLines={1} />
+                  )}
                 </TableCell>
                 <TableCell>
                   {playoffProbability !== undefined ? (
