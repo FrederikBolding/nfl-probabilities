@@ -7,7 +7,7 @@ export async function getSchedule(season: number) {
 
     const schedule = formatSchedule(json);
 
-    const scheduleWithByes = Object.entries(schedule).reduce(
+    const scheduleWithByes = Object.entries(schedule).reduce<Schedule>(
       (accumulator, [team, weeks]) => {
         const byeWeek =
           weeks.find(

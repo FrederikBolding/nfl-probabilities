@@ -4,6 +4,8 @@ import {
   calculatePlayoffProbability,
 } from "@nfl-probabilities/core";
 
+export type WorkerResponse = Awaited<ReturnType<typeof handleRequest>>;
+
 async function handleRequest(season: number, method: string) {
   const schedule = await getSchedule(season);
   switch (method) {

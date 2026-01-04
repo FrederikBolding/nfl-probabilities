@@ -12,9 +12,11 @@ import type {
   Seeding,
   TeamEloRating,
 } from "@nfl-probabilities/core";
+import type { WorkerResponse } from "./worker";
 
 export type DataContextType = {
   season: number;
+  setSeason: (season: number) => void;
   schedule: ScheduleWithoutByes | null;
   scheduleWithByes: Schedule | null;
   ratings: Record<string, TeamEloRating> | null;
@@ -24,6 +26,7 @@ export type DataContextType = {
 
 export const DataContext = createContext<DataContextType>({
   season: 2025,
+  setSeason: null as any,
   schedule: null,
   scheduleWithByes: null,
   ratings: null,
@@ -44,7 +47,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [playoffProbabilities, setPlayoffProbabilities] =
     useState<DataContextType["playoffProbabilities"]>(null);
 
-  async function callWorker(method: string) {
+  async function callWorker(method: string): Promise<WorkerResponse> {
     return await new Promise((resolve) => {
       const id = idRef.current++;
 
@@ -63,13 +66,14 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     callWorker("getSchedule").then((result) => {
-      setSchedule(result.schedule);
-      setScheduleWithByes(result.scheduleWithByes);
-      setRatings(result.ratings);
+      const { schedule, scheduleWithByes, ratings } = result as any;
+      setSchedule(schedule);
+      setScheduleWithByes(scheduleWithByes);
+      setRatings(ratings);
     });
-    callWorker("getSeeding").then((result) => setSeeding(result));
+    callWorker("getSeeding").then((result) => setSeeding(result as Seeding));
     callWorker("calculatePlayoffProbability").then((result) =>
-      setPlayoffProbabilities(result)
+      setPlayoffProbabilities(result as Record<string, number>)
     );
   }, [season]);
 

@@ -26,7 +26,7 @@ export const Header = () => {
   const onSeasonChange = (
     details: SelectValueChangeDetails<{ label: string; value: number }>
   ) => {
-    setSeason(details.value);
+    setSeason(details.value[0] as unknown as number);
   };
 
   return (
@@ -45,10 +45,12 @@ export const Header = () => {
       zIndex="sticky"
     >
       <HStack gap={4} alignItems="center">
-        <ChakraLink as={RouterLink} to="/" _hover={{ textDecoration: "none" }}>
-          <Heading as="h1" size={{ base: "lg", md: "2xl" }}>
-            NFL Probabilities
-          </Heading>
+        <ChakraLink asChild _hover={{ textDecoration: "none" }}>
+          <RouterLink to="/">
+            <Heading as="h1" size={{ base: "lg", md: "2xl" }}>
+              NFL Probabilities
+            </Heading>
+          </RouterLink>
         </ChakraLink>
 
         <NavLinks />
@@ -58,6 +60,7 @@ export const Header = () => {
         <Select.Root
           gap={0}
           collection={seasons}
+          // @ts-expect-error The types here are wrong.
           defaultValue={[seasons.items[0]!.value]}
           onValueChange={onSeasonChange}
         >
@@ -104,8 +107,8 @@ function NavLinks() {
         return (
           <ChakraLink
             key={link.to}
+            asChild
             as={RouterLink}
-            to={link.to}
             color={isActive ? "blue.500" : "gray.600"}
             fontWeight={isActive ? "semibold" : "medium"}
             _hover={{
@@ -113,7 +116,9 @@ function NavLinks() {
               color: isActive ? undefined : "gray.700",
             }}
           >
-            <Text fontSize={{ base: "sm", md: "md" }}>{link.label}</Text>
+            <RouterLink to={link.to}>
+              <Text fontSize={{ base: "sm", md: "md" }}>{link.label}</Text>
+            </RouterLink>
           </ChakraLink>
         );
       })}

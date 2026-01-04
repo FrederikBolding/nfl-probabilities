@@ -8,3 +8,4 @@ public
 !.yarn/sdks
 !.yarn/versions
 dist
+*.tsbuildinfo
