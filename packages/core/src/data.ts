@@ -1,5 +1,6 @@
 export const REGULAR_SEASON_GAMES = 17; // Excluding bye-weeks
 export const WILDCARD_SPOTS = 3;
+export const CONFERENCE_PLAYOFF_TEAMS = WILDCARD_SPOTS + 4;
 
 export enum WeekResult {
   Win,

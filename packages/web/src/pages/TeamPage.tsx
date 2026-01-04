@@ -13,10 +13,15 @@ import {
   Badge,
   HStack,
   Flex,
+  StatRoot,
+  StatLabel,
+  StatValueText,
 } from "@chakra-ui/react";
 import { DataContext } from "../worker";
 import {
   calculateProbability,
+  Conference,
+  CONFERENCE_PLAYOFF_TEAMS,
   TEAM_MAP,
   WeekResult,
 } from "@nfl-probabilities/core";
@@ -25,7 +30,7 @@ import { useParams } from "react-router-dom";
 
 export function TeamPage() {
   const { team } = useParams();
-  const { scheduleWithByes, ratings } = useContext(DataContext);
+  const { scheduleWithByes, ratings, seeding } = useContext(DataContext);
 
   if (team === undefined || !(team in TEAM_MAP)) {
     return null;
@@ -36,14 +41,50 @@ export function TeamPage() {
   const rating = ratings?.[team];
   const byeWeek = weeks.findIndex((week) => week === null) + 1;
 
+  const conferenceSeeding =
+    teamInfo.conference === Conference.AFC ? seeding?.afc : seeding?.nfc;
+  const seed = conferenceSeeding?.seeding.indexOf(team);
+
+  const wins = weeks?.filter((week) => week?.result === WeekResult.Win).length;
+  const losses = weeks?.filter(
+    (week) => week?.result === WeekResult.Loss
+  ).length;
+  const draws = weeks?.filter(
+    (week) => week?.result === WeekResult.Draw
+  ).length;
+
   return (
     <Flex direction="column" gap={4}>
-      <HStack>
-        <Heading size="lg">{teamInfo.name}</Heading>
+      <HStack gap={1}>
+        <Heading size={{ base: "lg", md: "xl" }}>{teamInfo.name}</Heading>
         <Badge>{teamInfo.division}</Badge>
+        {seed !== undefined && seed < CONFERENCE_PLAYOFF_TEAMS && (
+          <Badge>AFC #{seed + 1} Seed</Badge>
+        )}
       </HStack>
 
-      <EloChart team={team} />
+      <HStack
+        borderWidth={1}
+        p={3}
+        borderRadius="md"
+        overflow="hidden"
+        bg="bg.muted"
+      >
+        <StatRoot>
+          <StatLabel>Record</StatLabel>
+          <StatValueText>
+            {wins}-{losses}-{draws}
+          </StatValueText>
+        </StatRoot>
+        <StatRoot>
+          <StatLabel>ELO</StatLabel>
+          <StatValueText>{rating?.current.toFixed(2)}</StatValueText>
+        </StatRoot>
+      </HStack>
+
+      <Box borderWidth={1} p={2} borderRadius="md" overflow="hidden">
+        <EloChart team={team} />
+      </Box>
 
       <Box borderWidth={1} borderRadius="md" overflow="hidden">
         <TableRoot variant="outline">
@@ -93,10 +134,11 @@ export function TeamPage() {
               const adjustedWeekNumber =
                 weekNumber > byeWeek ? weekNumber - 1 : weekNumber;
 
-              const eloChange = isPlayed
-                ? rating?.history[adjustedWeekNumber] -
-                  rating?.history[adjustedWeekNumber - 1]
-                : null;
+              const eloChange =
+                isPlayed && rating
+                  ? rating.history[adjustedWeekNumber]! -
+                    rating.history[adjustedWeekNumber - 1]!
+                  : null;
 
               const opponentRating = ratings?.[opponent];
               const winProbability =

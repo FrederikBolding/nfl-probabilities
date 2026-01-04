@@ -42,6 +42,7 @@ export function EloChart({ team }: { team: string }) {
           axisLine={false}
           tickLine={false}
           tickMargin={10}
+          width={40}
           stroke={chart.color("border")}
           domain={["dataMin - 50", "dataMax + 50"]}
           tickFormatter={(value) => value.toFixed(0)}
