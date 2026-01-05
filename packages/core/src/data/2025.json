@@ -2088,128 +2088,128 @@
         "game": 0,
         "teamA": "Tampa Bay Buccaneers",
         "teamB": "Carolina Panthers",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 16,
+        "teamBScore": 14
       },
       {
         "week": 18,
         "game": 1,
         "teamA": "Atlanta Falcons",
         "teamB": "New Orleans Saints",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 19,
+        "teamBScore": 17
       },
       {
         "week": 18,
         "game": 2,
         "teamA": "Buffalo Bills",
         "teamB": "New York Jets",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 35,
+        "teamBScore": 8
       },
       {
         "week": 18,
         "game": 3,
         "teamA": "Chicago Bears",
         "teamB": "Detroit Lions",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 16,
+        "teamBScore": 19
       },
       {
         "week": 18,
         "game": 4,
         "teamA": "Cincinnati Bengals",
         "teamB": "Cleveland Browns",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 18,
+        "teamBScore": 20
       },
       {
         "week": 18,
         "game": 5,
         "teamA": "Denver Broncos",
         "teamB": "Los Angeles Chargers",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 19,
+        "teamBScore": 3
       },
       {
         "week": 18,
         "game": 6,
         "teamA": "Las Vegas Raiders",
         "teamB": "Kansas City Chiefs",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 14,
+        "teamBScore": 12
       },
       {
         "week": 18,
         "game": 7,
         "teamA": "Los Angeles Rams",
         "teamB": "Arizona Cardinals",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 37,
+        "teamBScore": 20
       },
       {
         "week": 18,
         "game": 8,
         "teamA": "Minnesota Vikings",
         "teamB": "Green Bay Packers",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 16,
+        "teamBScore": 3
       },
       {
         "week": 18,
         "game": 9,
         "teamA": "New England Patriots",
         "teamB": "Miami Dolphins",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 38,
+        "teamBScore": 10
       },
       {
         "week": 18,
         "game": 10,
         "teamA": "New York Giants",
         "teamB": "Dallas Cowboys",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 34,
+        "teamBScore": 17
       },
       {
         "week": 18,
         "game": 11,
         "teamA": "Philadelphia Eagles",
         "teamB": "Washington Commanders",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 17,
+        "teamBScore": 24
       },
       {
         "week": 18,
         "game": 12,
         "teamA": "San Francisco 49ers",
         "teamB": "Seattle Seahawks",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 3,
+        "teamBScore": 13
       },
       {
         "week": 18,
         "game": 13,
         "teamA": "Jacksonville Jaguars",
         "teamB": "Tennessee Titans",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 41,
+        "teamBScore": 7
       },
       {
         "week": 18,
         "game": 14,
         "teamA": "Houston Texans",
         "teamB": "Indianapolis Colts",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 38,
+        "teamBScore": 30
       },
       {
         "week": 18,
         "game": 15,
         "teamA": "Pittsburgh Steelers",
         "teamB": "Baltimore Ravens",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 26,
+        "teamBScore": 24
       }
     ]
   ]
