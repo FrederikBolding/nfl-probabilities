@@ -9,4 +9,5 @@ export default defineConfig({
     format: 'es',
     plugins: () => [tsconfigPaths()],
   },
+  base: './',
 });
