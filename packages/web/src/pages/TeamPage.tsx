@@ -59,7 +59,7 @@ export function TeamPage() {
         <Heading size={{ base: "lg", md: "xl" }}>{teamInfo.name}</Heading>
         <Badge>{teamInfo.division}</Badge>
         {seed !== undefined && seed < CONFERENCE_PLAYOFF_TEAMS && (
-          <Badge>AFC #{seed + 1} Seed</Badge>
+          <Badge>{teamInfo.conference} #{seed + 1} Seed</Badge>
         )}
       </HStack>
 
