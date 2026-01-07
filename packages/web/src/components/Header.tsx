@@ -95,7 +95,7 @@ export const Header = () => {
 function NavLinks() {
   const location = useLocation();
   const links = [
-    { to: "/conference", label: "Conference" },
+    { to: "/", label: "Conference" },
     { to: "/division", label: "Division" },
     { to: "/powerranking", label: "Power Ranking" },
   ];
@@ -103,7 +103,7 @@ function NavLinks() {
   return (
     <HStack gap={4}>
       {links.map((link) => {
-        const isActive = location.pathname.startsWith(link.to);
+        const isActive = location.pathname === link.to;
         return (
           <ChakraLink
             key={link.to}

@@ -19,7 +19,7 @@ export default function App() {
       position="relative"
     >
       <Header />
-      <Flex as="main" flexDirection="column" mt={12} pb={4}>
+      <Flex as="main" flexDirection="column" mt={{ base: "64px", md: 12 }} pb={4}>
         <Routes>
           <Route path="/" element={<ConferencePage />} />
           <Route path="/conference" element={<ConferencePage />} />
