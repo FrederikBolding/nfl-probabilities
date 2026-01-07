@@ -232,7 +232,7 @@ function breakTies(
     ([_key, value]) => value > 1
   )?.[0];
 
-  // If we are breaking ties for a wildcard and have multiple teams from the same division, 
+  // If we are breaking ties for a wildcard and have multiple teams from the same division,
   // we need find the best team from that division to continue on in the tie breaking.
   // TODO: Eliminated teams should be reconsidered in following rounds of tie breaking.
   if (!isDivisionTie && divisionToBreak) {
@@ -375,15 +375,22 @@ function isPlayoffsClinched(
 
   const isCurrentDivisionWinner = divisionWinners.includes(shorthand);
 
+  const divisionGamesLeft = divisionTeams.reduce(
+    (accumulator, record) =>
+      accumulator + REGULAR_SEASON_GAMES - record.record.totalGames,
+    0
+  );
+
   const isGuaranteedDivisionWinner =
     isCurrentDivisionWinner &&
-    !divisionTeams.some((divisionTeamRecord) =>
+    (!divisionTeams.some((divisionTeamRecord) =>
       canTie(
         divisionTeamRecord,
         teamRecord,
         REGULAR_SEASON_GAMES - divisionTeamRecord.record.totalGames
       )
-    );
+    ) ||
+      divisionGamesLeft === 0);
 
   const wildCardTies = allTeams.filter((wildCardTeamRecord) =>
     canTie(
@@ -393,9 +400,15 @@ function isPlayoffsClinched(
     )
   );
 
+  const wildCardGamesLeft = allTeams.reduce(
+    (accumulator, record) =>
+      accumulator + REGULAR_SEASON_GAMES - record.record.totalGames,
+    0
+  );
+
   const isGuaranteedWildcard =
     (isCurrentDivisionWinner || wildCards.includes(shorthand)) &&
-    wildCardTies.length < WILDCARD_SPOTS + 4;
+    (wildCardTies.length < WILDCARD_SPOTS + 4 || wildCardGamesLeft === 0);
 
   // A team is considered clinched if it is a guaranteed division winner or a guaranteed wild card (in top 7 and no one can tie)
   return isGuaranteedDivisionWinner || isGuaranteedWildcard;
@@ -421,11 +434,17 @@ function isEliminated(
     (record) => record.shorthand === divisionWinner
   )!;
 
-  const canTieDivisionWinner = canTie(
-    teamRecord,
-    divisionWinnerRecord,
-    remainingGames
-  );
+  const isCurrentDivisionWinner = divisionWinner === shorthand;
+
+  const divisionGamesLeft =
+    REGULAR_SEASON_GAMES -
+    divisionWinnerRecord.record.totalGames +
+    remainingGames;
+
+  const canTieDivisionWinner =
+    isCurrentDivisionWinner ||
+    (canTie(teamRecord, divisionWinnerRecord, remainingGames) &&
+      divisionGamesLeft > 0);
 
   const canTieWildCard = wildCards.some((wildCard) => {
     const wildCardRecord = records.find(
