@@ -10,7 +10,8 @@
     "start": "yarn workspace @nfl-probabilities/cli start",
     "fetch": "yarn workspace @nfl-probabilities/cli fetch",
     "web": "yarn workspace @nfl-probabilities/web dev",
-    "build": "yarn workspace @nfl-probabilities/web build"
+    "build": "yarn workspace @nfl-probabilities/web build",
+    "test": "yarn workspace @nfl-probabilities/core test"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.4.1",

@@ -6,9 +6,13 @@
   "private": true,
   "author": "",
   "license": "MIT",
+  "scripts": {
+    "test": "vitest"
+  },
   "devDependencies": {
     "@types/node": "^22.9.0",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "vitest": "^4.0.16"
   },
   "dependencies": {
     "combinatorial-generators": "^1.1.2"
