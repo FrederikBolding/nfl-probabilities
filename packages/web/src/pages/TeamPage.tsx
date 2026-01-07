@@ -16,6 +16,7 @@ import {
   StatRoot,
   StatLabel,
   StatValueText,
+  TableScrollArea,
 } from "@chakra-ui/react";
 import { DataContext } from "../worker";
 import {
@@ -59,7 +60,9 @@ export function TeamPage() {
         <Heading size={{ base: "lg", md: "xl" }}>{teamInfo.name}</Heading>
         <Badge>{teamInfo.division}</Badge>
         {seed !== undefined && seed < CONFERENCE_PLAYOFF_TEAMS && (
-          <Badge>{teamInfo.conference} #{seed + 1} Seed</Badge>
+          <Badge>
+            {teamInfo.conference} #{seed + 1} Seed
+          </Badge>
         )}
       </HStack>
 
@@ -87,106 +90,108 @@ export function TeamPage() {
       </Box>
 
       <Box borderWidth={1} borderRadius="md" overflow="hidden">
-        <TableRoot variant="outline">
-          <TableHeader>
-            <TableRow>
-              <TableColumnHeader>Opponent</TableColumnHeader>
-              <TableColumnHeader>Result</TableColumnHeader>
-              <TableColumnHeader>Score</TableColumnHeader>
-              <TableColumnHeader>Margin</TableColumnHeader>
-              <TableColumnHeader>ELO Change</TableColumnHeader>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {weeks.map((week, idx) => {
-              const weekNumber = idx + 1;
+        <TableScrollArea>
+          <TableRoot variant="outline">
+            <TableHeader>
+              <TableRow>
+                <TableColumnHeader>Opponent</TableColumnHeader>
+                <TableColumnHeader>Result</TableColumnHeader>
+                <TableColumnHeader>Score</TableColumnHeader>
+                <TableColumnHeader>Margin</TableColumnHeader>
+                <TableColumnHeader>ELO Change</TableColumnHeader>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {weeks.map((week, idx) => {
+                const weekNumber = idx + 1;
 
-              if (week === null) {
+                if (week === null) {
+                  return (
+                    <TableRow key={idx}>
+                      <TableCell colSpan={5}>Week {weekNumber} Bye</TableCell>
+                    </TableRow>
+                  );
+                }
+
+                const { result, homeScore, awayScore, away, opponent } = week;
+                const isWin = result === WeekResult.Win;
+                const isLoss = result === WeekResult.Loss;
+                const isDraw = result === WeekResult.Draw;
+                const isPlayed = result !== null;
+
+                const resultColor = isWin
+                  ? "green.600"
+                  : isLoss
+                  ? "red.600"
+                  : isDraw
+                  ? "yellow.600"
+                  : "gray.500";
+
+                const teamScore = away ? awayScore : homeScore;
+                const opponentScore = away ? homeScore : awayScore;
+
+                const margin =
+                  teamScore !== undefined &&
+                  opponentScore !== undefined &&
+                  teamScore - opponentScore;
+
+                const adjustedWeekNumber =
+                  weekNumber > byeWeek ? weekNumber - 1 : weekNumber;
+
+                const eloChange =
+                  isPlayed && rating
+                    ? rating.history[adjustedWeekNumber]! -
+                      rating.history[adjustedWeekNumber - 1]!
+                    : null;
+
+                const opponentRating = ratings?.[opponent];
+                const winProbability =
+                  opponentRating &&
+                  rating &&
+                  calculateProbability(rating.current, opponentRating.current);
+
                 return (
                   <TableRow key={idx}>
-                    <TableCell colSpan={5}>Week {weekNumber} Bye</TableCell>
+                    <TableCell>
+                      {away && "@ "}
+                      <TeamLink team={opponent} />
+                    </TableCell>
+                    <TableCell>
+                      <Text color={resultColor} fontWeight="semibold">
+                        {result === null
+                          ? winProbability
+                            ? `${(winProbability * 100).toFixed(1)}%`
+                            : "TBD"
+                          : isWin
+                          ? "W"
+                          : isLoss
+                          ? "L"
+                          : "D"}
+                      </Text>
+                    </TableCell>
+                    <TableCell>
+                      {teamScore !== null && opponentScore !== null
+                        ? `${teamScore}-${opponentScore}`
+                        : "-"}
+                    </TableCell>
+                    <TableCell>
+                      <Text color={resultColor} fontWeight="semibold">
+                        {margin ? (margin > 0 ? `+${margin}` : margin) : "-"}
+                      </Text>
+                    </TableCell>
+                    <TableCell color={resultColor} fontWeight="semibold">
+                      {eloChange !== null &&
+                        (eloChange > 0
+                          ? `+${eloChange.toFixed(2)}`
+                          : eloChange.toFixed(2))}
+                      {eloChange === null && "-"}
+                    </TableCell>
                   </TableRow>
                 );
-              }
-
-              const { result, homeScore, awayScore, away, opponent } = week;
-              const isWin = result === WeekResult.Win;
-              const isLoss = result === WeekResult.Loss;
-              const isDraw = result === WeekResult.Draw;
-              const isPlayed = result !== null;
-
-              const resultColor = isWin
-                ? "green.600"
-                : isLoss
-                ? "red.600"
-                : isDraw
-                ? "yellow.600"
-                : "gray.500";
-
-              const teamScore = away ? awayScore : homeScore;
-              const opponentScore = away ? homeScore : awayScore;
-
-              const margin =
-                teamScore !== undefined &&
-                opponentScore !== undefined &&
-                teamScore - opponentScore;
-
-              const adjustedWeekNumber =
-                weekNumber > byeWeek ? weekNumber - 1 : weekNumber;
-
-              const eloChange =
-                isPlayed && rating
-                  ? rating.history[adjustedWeekNumber]! -
-                    rating.history[adjustedWeekNumber - 1]!
-                  : null;
-
-              const opponentRating = ratings?.[opponent];
-              const winProbability =
-                opponentRating &&
-                rating &&
-                calculateProbability(rating.current, opponentRating.current);
-
-              return (
-                <TableRow key={idx}>
-                  <TableCell>
-                    {away && "@ "}
-                    <TeamLink team={opponent} />
-                  </TableCell>
-                  <TableCell>
-                    <Text color={resultColor} fontWeight="semibold">
-                      {result === null
-                        ? winProbability
-                          ? `${(winProbability * 100).toFixed(1)}%`
-                          : "TBD"
-                        : isWin
-                        ? "W"
-                        : isLoss
-                        ? "L"
-                        : "D"}
-                    </Text>
-                  </TableCell>
-                  <TableCell>
-                    {teamScore !== null && opponentScore !== null
-                      ? `${teamScore}-${opponentScore}`
-                      : "-"}
-                  </TableCell>
-                  <TableCell>
-                    <Text color={resultColor} fontWeight="semibold">
-                      {margin ? (margin > 0 ? `+${margin}` : margin) : "-"}
-                    </Text>
-                  </TableCell>
-                  <TableCell color={resultColor} fontWeight="semibold">
-                    {eloChange !== null &&
-                      (eloChange > 0
-                        ? `+${eloChange.toFixed(2)}`
-                        : eloChange.toFixed(2))}
-                    {eloChange === null && "-"}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </TableRoot>
+              })}
+            </TableBody>
+          </TableRoot>
+        </TableScrollArea>
       </Box>
     </Flex>
   );
