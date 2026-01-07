@@ -1,3 +1,5 @@
+import { TeamRecord } from "./records";
+
 export function filterMap<T, R>(
   array: T[],
   filterFn: (value: T) => boolean,
@@ -11,47 +13,65 @@ export function filterMap<T, R>(
   }, []);
 }
 
-export function findMinIndex(array: number[]) {
-  let hasSeenDifferent = false;
-  const min = array.reduce<{ value: number; index: number } | null>(
-    (acc, value, index) => {
-      if (acc && value !== acc.value) {
-        hasSeenDifferent = true;
-      }
-      if (acc && value > acc.value) {
-        return acc;
-      }
-      return { value, index };
-    },
-    null
-  );
-
-  if (!hasSeenDifferent || !min) {
-    return -1;
-  }
-  return min.index;
+export enum TiebreakResult {
+  Winner,
+  Eliminated,
 }
 
-export function findMinIndexMap<T>(array: T[], mapFn: (value: T) => number) {
-  let hasSeenDifferent = false;
-  const min = array.reduce<{ value: number; index: number } | null>(
-    (acc, value, index) => {
-      const mappedValue = mapFn(value);
-      if (acc && mappedValue !== acc.value) {
-        hasSeenDifferent = true;
+export type Tiebreak = {
+  result: TiebreakResult;
+  index: number;
+} | null;
+
+type IndexAndValue = { value: number; index: number } | null;
+
+export function findTiebreak(
+  records: TeamRecord[],
+  mapFn: (record: TeamRecord) => number
+): Tiebreak {
+  let hasSeenMultipleValues = false;
+  const result = records.reduce<{ min: IndexAndValue; max: IndexAndValue }>(
+    (accumulator, record, index) => {
+      let { min, max } = accumulator;
+      const value = mapFn(record);
+
+      if (min && min.value !== value) {
+        hasSeenMultipleValues = true;
       }
-      if (acc && mappedValue > acc.value) {
-        return acc;
+
+      if (max && max.value !== value) {
+        hasSeenMultipleValues = true;
       }
-      return { value: mappedValue, index };
+
+      if (!min || value < min.value) {
+        min = { index, value };
+      }
+
+      if (!max || value > max.value) {
+        max = { index, value };
+      }
+
+      return { min, max };
     },
-    null
+    { min: null, max: null }
   );
 
-  if (!hasSeenDifferent || !min) {
-    return -1;
+  if (!hasSeenMultipleValues) {
+    return null;
   }
-  return min.index;
+
+  const { min, max } = result;
+
+  // If we've either found either a distinct maximum or minimum value, we can break the tie and continue.
+  if (max) {
+    return { result: TiebreakResult.Winner, index: max.index };
+  }
+
+  if (min) {
+    return { result: TiebreakResult.Eliminated, index: min.index };
+  }
+
+  return null;
 }
 
 export function separate<T>(array: T[], index: number) {
