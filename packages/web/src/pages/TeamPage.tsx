@@ -153,8 +153,10 @@ export function TeamPage() {
                 return (
                   <TableRow key={idx}>
                     <TableCell>
-                      {away && "@ "}
-                      <TeamLink team={opponent} />
+                      <Flex alignItems="center" gap={1}>
+                        {away ? "@" : "vs"}
+                        <TeamLink team={opponent} showFullName />
+                      </Flex>
                     </TableCell>
                     <TableCell>
                       <Text color={resultColor} fontWeight="semibold">

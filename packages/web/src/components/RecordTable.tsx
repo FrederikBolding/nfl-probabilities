@@ -73,7 +73,8 @@ export const RecordTable = ({
         </TableHeader>
         <TableBody>
           {sortedTeams.map((team) => {
-            const { name, conference } = TEAM_MAP[team]!;
+            const { conference } = TEAM_MAP[team]!;
+
             const conferenceSeeding =
               conference === Conference.AFC ? seeding?.afc : seeding?.nfc;
             const isEliminated =
@@ -93,16 +94,14 @@ export const RecordTable = ({
               (week) => week?.result === WeekResult.Draw
             ).length;
 
-            const teamName = fullNames ? name : name.split(" ").at(-1);
-
             return (
               <TableRow key={team}>
                 <TableCell>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <TeamLink team={team}>{teamName}</TeamLink>
-                    {isClinched && <Badge colorScheme="green">P</Badge>}
-                    {isEliminated && <Badge colorScheme="red">E</Badge>}
-                  </Box>
+                  <TeamLink
+                    team={team}
+                    showFullName={fullNames}
+                    showPlayoffStatus
+                  />
                 </TableCell>
                 <TableCell>
                   {wins !== undefined ? (

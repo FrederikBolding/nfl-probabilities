@@ -1,11 +1,75 @@
-import React from "react";
-import { Box } from "@chakra-ui/react";
-import { PowerRanking } from "../components/PowerRanking";
+import { useContext } from "react";
+import { WeekResult } from "@nfl-probabilities/core";
+import {
+  Flex,
+  TableRoot,
+  TableHeader,
+  TableCaption,
+  TableRow,
+  TableColumnHeader,
+  TableCell,
+  TableBody,
+  Text,
+} from "@chakra-ui/react";
+import { DataContext } from "../worker";
+import { TeamLink } from "../components";
 
 export function PowerRankingPage() {
+  const { ratings, schedule } = useContext(DataContext);
+
   return (
-    <Box>
-      <PowerRanking />
-    </Box>
+    <Flex
+      direction="column"
+      flexGrow={1}
+      borderRadius="md"
+      overflow="hidden"
+      borderWidth={1}
+    >
+      <TableRoot variant="outline">
+        <TableCaption />
+        <TableHeader>
+          <TableRow>
+            <TableColumnHeader>Team</TableColumnHeader>
+            <TableColumnHeader>ELO</TableColumnHeader>
+            <TableColumnHeader>Record</TableColumnHeader>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {Object.entries(ratings ?? {})
+            .sort(
+              ([_teamA, ratingA], [_teamB, ratingB]) =>
+                ratingB.current - ratingA.current
+            )
+            .map(([team, rating]) => {
+              const weeks = schedule?.[team];
+              const wins = weeks?.filter(
+                (week) => week?.result === WeekResult.Win
+              ).length;
+              const losses = weeks?.filter(
+                (week) => week?.result === WeekResult.Loss
+              ).length;
+              const draws = weeks?.filter(
+                (week) => week?.result === WeekResult.Draw
+              ).length;
+
+              return (
+                <TableRow key={team}>
+                  <TableCell>
+                    <TeamLink team={team} showFullName showPlayoffStatus />
+                  </TableCell>
+                  <TableCell>
+                    <Text fontFamily="mono">{rating.current.toFixed(2)}</Text>
+                  </TableCell>
+                  <TableCell>
+                    <Text fontFamily="mono">
+                      {wins}-{losses}-{draws}
+                    </Text>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+        </TableBody>
+      </TableRoot>
+    </Flex>
   );
 }
