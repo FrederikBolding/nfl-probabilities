@@ -10,7 +10,7 @@ interface Event {
 }
 
 const args = process.argv;
-const season = parseInt(args[2] ?? "2025");
+const season = parseInt(args[2] ?? "2026");
 
 async function main() {
   const weeks = await Promise.all(

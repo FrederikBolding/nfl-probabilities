@@ -11,7 +11,7 @@ import {
 } from "@nfl-probabilities/core";
 
 const args = process.argv;
-const season = parseInt(args[2] ?? "2025");
+const season = parseInt(args[2] ?? "2026");
 
 async function main() {
   const { schedule, ratings } = await getSchedule(season);

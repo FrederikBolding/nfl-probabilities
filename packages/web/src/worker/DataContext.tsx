@@ -26,7 +26,7 @@ export type DataContextType = {
 };
 
 export const DataContext = createContext<DataContextType>({
-  season: 2025,
+  season: 2026,
   setSeason: null as any,
   schedule: null,
   scheduleWithByes: null,
@@ -39,7 +39,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const worker = useMemo(() => new Worker(), []);
 
   const idRef = useRef(0);
-  const [season, setSeason] = useState(2025);
+  const [season, setSeason] = useState(2026);
   const [schedule, setSchedule] = useState<DataContextType["schedule"]>(null);
   const [scheduleWithByes, setScheduleWithByes] =
     useState<DataContextType["scheduleWithByes"]>(null);

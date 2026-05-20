@@ -17,6 +17,7 @@ export const Header = () => {
 
   const seasons = createListCollection({
     items: [
+      { label: "2026", value: 2026 },
       { label: "2025", value: 2025 },
       { label: "2024", value: 2024 },
       { label: "2023", value: 2023 },
@@ -24,7 +25,7 @@ export const Header = () => {
   });
 
   const onSeasonChange = (
-    details: SelectValueChangeDetails<{ label: string; value: number }>
+    details: SelectValueChangeDetails<{ label: string; value: number }>,
   ) => {
     setSeason(details.value[0] as unknown as number);
   };
