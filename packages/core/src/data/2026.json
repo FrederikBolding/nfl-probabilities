@@ -6,8 +6,8 @@
         "game": 0,
         "teamA": "Seattle Seahawks",
         "teamB": "New England Patriots",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 13,
+        "teamBScore": 10
       },
       {
         "week": 1,
