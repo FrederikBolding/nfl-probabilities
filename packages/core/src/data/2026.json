@@ -256,8 +256,8 @@
         "game": 15,
         "teamA": "Los Angeles Rams",
         "teamB": "New York Giants",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 28,
+        "teamBScore": 6
       }
     ],
     [
