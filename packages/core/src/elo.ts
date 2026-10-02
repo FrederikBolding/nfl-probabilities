@@ -3,7 +3,7 @@ import { ScheduleWithoutByes, TeamScheduleWeek } from "./schedule";
 
 const K = 20;
 export const INITIAL_ELO = 1500;
-const HOME_FIELD_ADVANTAGE = 65;
+const HOME_FIELD_ADVANTAGE = 50;
 
 // TODO: Consider memoizing
 export function calculateProbability(ratingA: number, ratingB: number) {
@@ -17,7 +17,7 @@ function calculateMOVMultiplier(
 ) {
   const multiplier =
     Math.log(margin + 1) * (2.2 / (0.001 * Math.abs(ratingA - ratingB) + 2.2));
-  return Math.max(1, Math.min(multiplier, 3));
+  return Math.max(1, Math.min(multiplier, 2));
 }
 
 function calculateRating(
