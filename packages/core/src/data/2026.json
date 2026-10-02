@@ -386,8 +386,8 @@
         "game": 15,
         "teamA": "Chicago Bears",
         "teamB": "Philadelphia Eagles",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 27,
+        "teamBScore": 7
       }
     ],
     [
