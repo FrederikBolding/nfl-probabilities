@@ -65,7 +65,6 @@ export function calculateTeamRatings(schedule: Schedule) {
 
     const lastPlayedWeek = games.reduce((acc, game, index) => {
       if (game && game.result !== null) {
-        console.log(index, game);
         return index;
       }
       return acc;
