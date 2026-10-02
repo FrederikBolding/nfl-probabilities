@@ -6,8 +6,23 @@ import {
 
 export type WorkerResponse = Awaited<ReturnType<typeof handleRequest>>;
 
-async function handleRequest(season: number, method: string) {
-  const schedule = await getSchedule(season);
+const schedules: Record<number, ReturnType<typeof getSchedule>> = {};
+
+async function getCachedSchedule(season: number) {
+  const cached = schedules[season];
+  if (cached) {
+    return cached;
+  }
+
+  const promise = getSchedule(season);
+  schedules[season] = promise;
+  return promise;
+}
+
+function handleRequest(
+  schedule: Awaited<ReturnType<typeof getSchedule>>,
+  method: string,
+) {
   switch (method) {
     case "getSchedule":
       return schedule;
@@ -20,6 +35,7 @@ async function handleRequest(season: number, method: string) {
 
 addEventListener("message", async (event) => {
   const id = event.data.id;
-  const result = await handleRequest(event.data.season, event.data.method);
+  const schedule = await getCachedSchedule(event.data.season);
+  const result = handleRequest(schedule, event.data.method);
   postMessage({ id, result });
 });
