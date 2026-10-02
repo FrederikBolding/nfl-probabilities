@@ -1,5 +1,5 @@
 import { TEAMS, WeekResult } from "./data";
-import { ScheduleWithoutByes, TeamScheduleWeek } from "./schedule";
+import { Schedule, TeamScheduleWeek } from "./schedule";
 
 const K = 20;
 export const INITIAL_ELO = 1500;
@@ -13,7 +13,7 @@ export function calculateProbability(ratingA: number, ratingB: number) {
 function calculateMOVMultiplier(
   ratingA: number,
   ratingB: number,
-  margin: number
+  margin: number,
 ) {
   const multiplier =
     Math.log(margin + 1) * (2.2 / (0.001 * Math.abs(ratingA - ratingB) + 2.2));
@@ -24,11 +24,11 @@ function calculateRating(
   ratingA: number,
   ratingB: number,
   outcome: number,
-  margin: number
+  margin: number,
 ) {
   const probabilityA = calculateProbability(
     ratingA + HOME_FIELD_ADVANTAGE,
-    ratingB
+    ratingB,
   );
   const probabilityB = 1.0 - probabilityA;
 
@@ -45,7 +45,7 @@ export type TeamEloRating = {
   history: number[];
 };
 
-export function calculateTeamRatings(schedule: ScheduleWithoutByes) {
+export function calculateTeamRatings(schedule: Schedule) {
   const ratings = TEAMS.reduce<Record<string, TeamEloRating>>(
     (accumulator, team) => {
       accumulator[team.shorthand] = {
@@ -54,47 +54,62 @@ export function calculateTeamRatings(schedule: ScheduleWithoutByes) {
       };
       return accumulator;
     },
-    {}
+    {},
   );
 
   const decidedWeeks = Object.entries(schedule).reduce<
-    (TeamScheduleWeek & { team: string })[][]
+    { team: string; game: TeamScheduleWeek | null }[][]
   >((accumulator, teamSchedule) => {
     const teamName = teamSchedule[0];
     const games = teamSchedule[1];
+
+    const lastPlayedWeek = games.reduce((acc, game, index) => {
+      if (game && game.result !== null) {
+        console.log(index, game);
+        return index;
+      }
+      return acc;
+    }, -1);
 
     games.forEach((game, index) => {
       if (index > accumulator.length - 1) {
         accumulator.push([]);
       }
-      // Only include decided home games to not double count games
-      if (game.result !== null && !game.away) {
-        accumulator[index]!.push({ ...game, team: teamName });
+      // Only include decided home games and past bye weeks to not double count games
+      if (game === null && index < lastPlayedWeek) {
+        accumulator[index]!.push({ game, team: teamName });
+      } else if (game && game?.result !== null && !game?.away) {
+        accumulator[index]!.push({ game, team: teamName });
       }
     });
     return accumulator;
   }, []);
 
   decidedWeeks.forEach((week) => {
-    week.forEach((game) => {
-      const ratingA = ratings[game.team]!;
+    week.forEach(({ team, game }) => {
+      if (!game) {
+        ratings[team]!.history.push(ratings[team]!.current);
+        return;
+      }
+
+      const ratingA = ratings[team]!;
       const ratingB = ratings[game.opponent]!;
       const outcome =
         game.result === WeekResult.Win
           ? 1.0
           : game.result === WeekResult.Draw
-          ? 0.5
-          : 0.0;
+            ? 0.5
+            : 0.0;
       const margin = Math.abs(game.homeScore! - game.awayScore!);
       const { ratingA: newRatingA, ratingB: newRatingB } = calculateRating(
         ratingA.current,
         ratingB.current,
         outcome,
-        margin
+        margin,
       );
-      ratings[game.team]!.history.push(newRatingA);
+      ratings[team]!.history.push(newRatingA);
       ratings[game.opponent]!.history.push(newRatingB);
-      ratings[game.team]!.current = newRatingA;
+      ratings[team]!.current = newRatingA;
       ratings[game.opponent]!.current = newRatingB;
     });
   });

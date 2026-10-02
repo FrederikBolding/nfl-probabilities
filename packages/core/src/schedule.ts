@@ -23,7 +23,7 @@ export async function getSchedule(season: number) {
       {}
     );
 
-    const ratings = calculateTeamRatings(schedule);
+    const ratings = calculateTeamRatings(scheduleWithByes);
 
     return { schedule, scheduleWithByes, ratings };
   } catch {

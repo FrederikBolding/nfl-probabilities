@@ -40,7 +40,6 @@ export function TeamPage() {
   const teamInfo = TEAM_MAP[team]!;
   const weeks = scheduleWithByes?.[team] ?? [];
   const rating = ratings?.[team];
-  const byeWeek = weeks.findIndex((week) => week === null) + 1;
 
   const conferenceSeeding =
     teamInfo.conference === Conference.AFC ? seeding?.afc : seeding?.nfc;
@@ -135,13 +134,9 @@ export function TeamPage() {
                   opponentScore !== undefined &&
                   teamScore - opponentScore;
 
-                const adjustedWeekNumber =
-                  weekNumber > byeWeek ? weekNumber - 1 : weekNumber;
-
                 const eloChange =
                   isPlayed && rating
-                    ? rating.history[adjustedWeekNumber]! -
-                      rating.history[adjustedWeekNumber - 1]!
+                    ? rating.history[weekNumber]! - rating.history[weekNumber - 1]!
                     : null;
 
                 const opponentRating = ratings?.[opponent];
