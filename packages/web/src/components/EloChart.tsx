@@ -20,7 +20,7 @@ export function EloChart({ team }: { team: string }) {
     data:
       rating?.history.map((elo, index) => ({
         elo,
-        week: `Week ${index + 1}`,
+        week: index === 0 ? "" : `Week ${index}`,
       })) ?? [],
     series: [{ name: "elo", label: "ELO" }],
   });
