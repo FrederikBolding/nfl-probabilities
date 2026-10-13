@@ -638,8 +638,8 @@
         "game": 14,
         "teamA": "Los Angeles Rams",
         "teamB": "Buffalo Bills",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 34,
+        "teamBScore": 37
       }
     ],
     [
