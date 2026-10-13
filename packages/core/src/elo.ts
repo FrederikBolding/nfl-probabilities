@@ -75,7 +75,10 @@ export function calculateTeamRatings(schedule: Schedule) {
         accumulator.push([]);
       }
       // Only include decided home games and past bye weeks to not double count games
-      if (game === null && index < lastPlayedWeek) {
+      if (
+        game === null &&
+        (index < lastPlayedWeek || lastPlayedWeek === index - 1)
+      ) {
         accumulator[index]!.push({ game, team: teamName });
       } else if (game && game?.result !== null && !game?.away) {
         accumulator[index]!.push({ game, team: teamName });
