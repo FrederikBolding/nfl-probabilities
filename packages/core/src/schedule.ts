@@ -14,7 +14,7 @@ export async function getSchedule(season: number) {
             (week, weekIndex, array) =>
               weekIndex < array.length &&
               array[weekIndex + 1]!.week - week.week > 1
-          )!.week + 1;
+          )!.week;
         const weeksCopy = [...weeks] as Schedule[any];
         weeksCopy.splice(byeWeek, 0, null);
         accumulator[team] = weeksCopy;
