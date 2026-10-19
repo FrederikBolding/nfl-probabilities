@@ -17,6 +17,7 @@ import {
   StatLabel,
   StatValueText,
   TableScrollArea,
+  SkeletonText,
 } from "@chakra-ui/react";
 import { DataContext } from "../worker";
 import {
@@ -31,7 +32,8 @@ import { useParams } from "react-router-dom";
 
 export function TeamPage() {
   const { team } = useParams();
-  const { scheduleWithByes, ratings, seeding } = useContext(DataContext);
+  const { scheduleWithByes, ratings, seeding, playoffProbabilities } =
+    useContext(DataContext);
 
   if (team === undefined || !(team in TEAM_MAP)) {
     return null;
@@ -45,12 +47,17 @@ export function TeamPage() {
     teamInfo.conference === Conference.AFC ? seeding?.afc : seeding?.nfc;
   const seed = conferenceSeeding?.seeding.indexOf(team);
 
+  const isEliminated = conferenceSeeding?.eliminatedTeams.includes(team);
+  const isClinched = conferenceSeeding?.clinchedTeams.includes(team);
+
+  const playoffProbability = playoffProbabilities?.[team];
+
   const wins = weeks?.filter((week) => week?.result === WeekResult.Win).length;
   const losses = weeks?.filter(
-    (week) => week?.result === WeekResult.Loss
+    (week) => week?.result === WeekResult.Loss,
   ).length;
   const draws = weeks?.filter(
-    (week) => week?.result === WeekResult.Draw
+    (week) => week?.result === WeekResult.Draw,
   ).length;
 
   return (
@@ -63,6 +70,8 @@ export function TeamPage() {
             {teamInfo.conference} #{seed + 1} Seed
           </Badge>
         )}
+        {isClinched && <Badge>Clinched</Badge>}
+        {isEliminated && <Badge>Eliminated</Badge>}
       </HStack>
 
       <HStack
@@ -81,6 +90,23 @@ export function TeamPage() {
         <StatRoot>
           <StatLabel>ELO</StatLabel>
           <StatValueText>{rating?.current.toFixed(2)}</StatValueText>
+        </StatRoot>
+        <StatRoot>
+          <StatLabel>Playoff %</StatLabel>
+          <StatValueText>
+            {playoffProbability !== undefined ? (
+              <Text>
+                {isEliminated || playoffProbability > 1
+                  ? !isClinched && playoffProbability > 99
+                    ? ">99"
+                    : playoffProbability.toFixed(0)
+                  : "<1"}
+                %
+              </Text>
+            ) : (
+              <SkeletonText noOfLines={1} />
+            )}
+          </StatValueText>
         </StatRoot>
       </HStack>
 
@@ -121,10 +147,10 @@ export function TeamPage() {
                 const resultColor = isWin
                   ? "green.600"
                   : isLoss
-                  ? "red.600"
-                  : isDraw
-                  ? "yellow.600"
-                  : "gray.500";
+                    ? "red.600"
+                    : isDraw
+                      ? "yellow.600"
+                      : "gray.500";
 
                 const teamScore = away ? awayScore : homeScore;
                 const opponentScore = away ? homeScore : awayScore;
@@ -136,7 +162,8 @@ export function TeamPage() {
 
                 const eloChange =
                   isPlayed && rating
-                    ? rating.history[weekNumber]! - rating.history[weekNumber - 1]!
+                    ? rating.history[weekNumber]! -
+                      rating.history[weekNumber - 1]!
                     : null;
 
                 const opponentRating = ratings?.[opponent];
@@ -160,10 +187,10 @@ export function TeamPage() {
                             ? `${(winProbability * 100).toFixed(1)}%`
                             : "TBD"
                           : isWin
-                          ? "W"
-                          : isLoss
-                          ? "L"
-                          : "D"}
+                            ? "W"
+                            : isLoss
+                              ? "L"
+                              : "D"}
                       </Text>
                     </TableCell>
                     <TableCell>
