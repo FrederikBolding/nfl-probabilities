@@ -752,8 +752,8 @@
         "game": 13,
         "teamA": "San Francisco 49ers",
         "teamB": "Washington Commanders",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 23,
+        "teamBScore": 17
       }
     ],
     [
