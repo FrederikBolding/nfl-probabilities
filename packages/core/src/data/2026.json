@@ -866,8 +866,8 @@
         "game": 13,
         "teamA": "Philadelphia Eagles",
         "teamB": "Dallas Cowboys",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 21,
+        "teamBScore": 38
       }
     ],
     [
