@@ -14,8 +14,8 @@
     "test": "yarn workspace @nfl-probabilities/core test"
   },
   "devDependencies": {
-    "@lavamoat/allow-scripts": "^3.4.1",
-    "@lavamoat/preinstall-always-fail": "^2.1.1",
+    "@lavamoat/allow-scripts": "^5.1.0",
+    "@lavamoat/preinstall-always-fail": "^3.0.1",
     "typescript": "^5.9.2"
   },
   "author": "",
