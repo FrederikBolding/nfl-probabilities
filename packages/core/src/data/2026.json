@@ -980,8 +980,8 @@
         "game": 13,
         "teamA": "Seattle Seahawks",
         "teamB": "Chicago Bears",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 17,
+        "teamBScore": 34
       }
     ],
     [
