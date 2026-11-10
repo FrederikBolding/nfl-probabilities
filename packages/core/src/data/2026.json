@@ -1102,8 +1102,8 @@
         "game": 14,
         "teamA": "Minnesota Vikings",
         "teamB": "Buffalo Bills",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 6,
+        "teamBScore": 23
       }
     ],
     [
