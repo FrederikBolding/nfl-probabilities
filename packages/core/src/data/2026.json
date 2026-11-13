@@ -1112,8 +1112,8 @@
         "game": 0,
         "teamA": "New York Giants",
         "teamB": "Washington Commanders",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 21,
+        "teamBScore": 24
       },
       {
         "week": 10,
