@@ -2,8 +2,8 @@ name: Auto-fetch data
 
 on:
   schedule:
-    - cron: "0 8 * 9-12 2" # Tuesdays, September-December
-    - cron: "0 8 * 1 2" # Tuesdays, January
+    - cron: "0 8 * 9-12 1,2,5" # Monday, Tuesday, Friday, September-December
+    - cron: "0 8 * 1 1,2,5" # Monday, Tuesday, Friday, January
   workflow_dispatch:
 
 jobs:
