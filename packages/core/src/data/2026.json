@@ -1216,8 +1216,8 @@
         "game": 13,
         "teamA": "Baltimore Ravens",
         "teamB": "Los Angeles Chargers",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 20,
+        "teamBScore": 23
       }
     ],
     [
