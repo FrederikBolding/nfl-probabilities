@@ -1226,8 +1226,8 @@
         "game": 0,
         "teamA": "Houston Texans",
         "teamB": "Indianapolis Colts",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 26,
+        "teamBScore": 3
       },
       {
         "week": 11,
