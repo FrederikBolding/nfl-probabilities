@@ -110,14 +110,14 @@ function getCommonRecord(
   teamShorthands: string[]
 ) {
   const ownSchedule = schedule[teamShorthand]!;
-  const opponents = ownSchedule.map((week) => week.opponent);
+  const opponents = [...new Set(ownSchedule.map((week) => week.opponent))];
 
   const commonOpponents = teamShorthands.reduce<string[]>(
     (accumulator, scheduleShorthand) => {
       return accumulator.filter((initialOpponent) =>
         schedule[scheduleShorthand]!.some(
-          (week) => week.opponent === initialOpponent
-        )
+          (week) => week.result !== null && week.opponent === initialOpponent,
+        ),
       );
     },
     opponents
