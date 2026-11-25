@@ -1322,8 +1322,8 @@
         "game": 12,
         "teamA": "Washington Commanders",
         "teamB": "Cincinnati Bengals",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 22,
+        "teamBScore": 20
       }
     ],
     [
@@ -1378,14 +1378,6 @@
       {
         "week": 12,
         "game": 6,
-        "teamA": "Cleveland Browns",
-        "teamB": "Las Vegas Raiders",
-        "teamAScore": null,
-        "teamBScore": null
-      },
-      {
-        "week": 12,
-        "game": 7,
         "teamA": "Indianapolis Colts",
         "teamB": "New York Giants",
         "teamAScore": null,
@@ -1393,7 +1385,7 @@
       },
       {
         "week": 12,
-        "game": 8,
+        "game": 7,
         "teamA": "Miami Dolphins",
         "teamB": "New York Jets",
         "teamAScore": null,
@@ -1401,7 +1393,7 @@
       },
       {
         "week": 12,
-        "game": 9,
+        "game": 8,
         "teamA": "Minnesota Vikings",
         "teamB": "Atlanta Falcons",
         "teamAScore": null,
@@ -1409,7 +1401,7 @@
       },
       {
         "week": 12,
-        "game": 10,
+        "game": 9,
         "teamA": "Houston Texans",
         "teamB": "Baltimore Ravens",
         "teamAScore": null,
@@ -1417,7 +1409,7 @@
       },
       {
         "week": 12,
-        "game": 11,
+        "game": 10,
         "teamA": "Jacksonville Jaguars",
         "teamB": "Tennessee Titans",
         "teamAScore": null,
@@ -1425,7 +1417,7 @@
       },
       {
         "week": 12,
-        "game": 12,
+        "game": 11,
         "teamA": "Arizona Cardinals",
         "teamB": "Washington Commanders",
         "teamAScore": null,
@@ -1433,7 +1425,7 @@
       },
       {
         "week": 12,
-        "game": 13,
+        "game": 12,
         "teamA": "San Francisco 49ers",
         "teamB": "Seattle Seahawks",
         "teamAScore": null,
@@ -1441,9 +1433,17 @@
       },
       {
         "week": 12,
-        "game": 14,
+        "game": 13,
         "teamA": "Los Angeles Chargers",
         "teamB": "New England Patriots",
+        "teamAScore": null,
+        "teamBScore": null
+      },
+      {
+        "week": 12,
+        "game": 14,
+        "teamA": "Cleveland Browns",
+        "teamB": "Las Vegas Raiders",
         "teamAScore": null,
         "teamBScore": null
       },
