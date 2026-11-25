@@ -86,8 +86,8 @@ export function formatSchedule(data: RawScheduleData): ScheduleWithoutByes {
   const allGames = data.weeks.flat();
 
   allGames.forEach((game) => {
-    const homeTeam = TEAMS_OBJECTS[game.teamA]!.shorthand;
-    const awayTeam = TEAMS_OBJECTS[game.teamB]!.shorthand;
+    const homeTeam = game.teamA;
+    const awayTeam = game.teamB;
 
     const [homeTeamResult, awayTeamResult] = getResult(
       game.teamAScore,
