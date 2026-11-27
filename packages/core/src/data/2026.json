@@ -1168,29 +1168,29 @@
         "week": 12,
         "teamA": "LAR",
         "teamB": "GB",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 26,
+        "teamBScore": 13
       },
       {
         "week": 12,
         "teamA": "DET",
         "teamB": "CHI",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 35,
+        "teamBScore": 39
       },
       {
         "week": 12,
         "teamA": "DAL",
         "teamB": "PHI",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 38,
+        "teamBScore": 39
       },
       {
         "week": 12,
         "teamA": "BUF",
         "teamB": "KC",
-        "teamAScore": null,
-        "teamBScore": null
+        "teamAScore": 13,
+        "teamBScore": 10
       },
       {
         "week": 12,
